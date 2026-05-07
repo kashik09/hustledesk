@@ -17,13 +17,35 @@ export default function Dashboard() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
         <RateCard rate={rate} loading={loading} error={error} />
         {loading ? (
           <LoadingSkeleton />
         ) : (
           <PurchasingPowerCard rate={rate || 129} />
         )}
+      </div>
+
+      {/* Quick links */}
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Link
+          to="/subscriptions"
+          className="bg-white border border-stone-200 rounded-xl p-5 hover:border-amber-400 hover:shadow-md transition-all"
+        >
+          <h3 className="font-semibold text-stone-800">Subscription Tracker</h3>
+          <p className="text-stone-500 text-sm mt-1">
+            See how much your USD subscriptions cost in KES
+          </p>
+        </Link>
+        <Link
+          to="/trends"
+          className="bg-white border border-stone-200 rounded-xl p-5 hover:border-amber-400 hover:shadow-md transition-all"
+        >
+          <h3 className="font-semibold text-stone-800">30-Day Trends</h3>
+          <p className="text-stone-500 text-sm mt-1">
+            Check if now is a good time to convert
+          </p>
+        </Link>
       </div>
     </main>
   );
