@@ -18,8 +18,8 @@ export default function RateCard({ rate, loading, error }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 border border-stone-100">
-      <p className="text-stone-500 text-sm mb-1">USD → KES Live Rate</p>
+    <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-md p-6 border border-amber-100 hover:shadow-lg transition-shadow">
+      <p className="text-amber-700 text-sm font-medium mb-1">USD → KES Live Rate</p>
       <p className="text-4xl font-bold text-stone-800">
         KES {rate?.toFixed(2)}
       </p>
