@@ -1,1 +1,22 @@
-{}
+[
+    {
+      "amount": 5,
+      "item": "plates of nyama choma"
+    },
+    {
+      "amount": 12,
+      "item": "matatu rides"
+    },
+    {
+      "amount": 3,
+      "item": "days of lunch in Nairobi"
+    },
+    {
+      "amount": 1,
+      "item": "month of WiFi"
+    },
+    {
+      "amount": 20,
+      "item": "cups of chai"
+    }
+  ]
