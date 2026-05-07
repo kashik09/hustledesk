@@ -1,29 +1,24 @@
 import useRates from "../hooks/useRates";
-import { formatCurrency } from "../utils/format";
+import RateCard from "../components/RateCard";
+import PurchasingPowerCard from "../components/PurchasingPowerCard";
 
 export default function Dashboard() {
   const { data, loading, error } = useRates();
-
-  if (loading) {
-    return <p className="p-6">Loading rates...</p>;
-  }
-
-  if (error) {
-    return <p className="p-6 text-red-500">Error: {error}</p>;
-  }
-
   const rate = data?.rates?.KES;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">HustleDesk</h1>
-
-      <div className="bg-orange-100 p-4 rounded-xl">
-        <p className="text-gray-600">USD → KES Live Rate</p>
-        <p className="text-3xl font-bold">
-          {formatCurrency(rate, "KES")}
+    <main className="max-w-4xl mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-stone-800">Dashboard</h1>
+        <p className="text-stone-500 mt-1">
+          Track USD/KES rates and see what your money is worth
         </p>
       </div>
-    </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <RateCard rate={rate} loading={loading} error={error} />
+        <PurchasingPowerCard rate={rate || 129} />
+      </div>
+    </main>
   );
 }
