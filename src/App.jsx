@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 import Dashboard from './pages/Dashboard'
 import Subscriptions from './pages/Subscriptions'
 import Trends from './pages/Trends'
@@ -15,14 +16,17 @@ function NotFound() {
 
 function App() {
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 flex flex-col">
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/subscriptions" element={<Subscriptions />} />
-        <Route path="/trends" element={<Trends />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/subscriptions" element={<Subscriptions />} />
+          <Route path="/trends" element={<Trends />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+      <Footer />
     </div>
   )
 }
