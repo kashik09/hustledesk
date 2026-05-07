@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
 import useRates from "../hooks/useRates";
 import RateCard from "../components/RateCard";
 import PurchasingPowerCard from "../components/PurchasingPowerCard";
+import LoadingSkeleton from "../components/LoadingSkeleton";
 
 export default function Dashboard() {
   const { data, loading, error } = useRates();
@@ -17,7 +19,11 @@ export default function Dashboard() {
 
       <div className="grid md:grid-cols-2 gap-6">
         <RateCard rate={rate} loading={loading} error={error} />
-        <PurchasingPowerCard rate={rate || 129} />
+        {loading ? (
+          <LoadingSkeleton />
+        ) : (
+          <PurchasingPowerCard rate={rate || 129} />
+        )}
       </div>
     </main>
   );
