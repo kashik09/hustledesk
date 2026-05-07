@@ -45,7 +45,7 @@ function useRates() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("https://api.frankfurter.app/latest?from=USD&to=KES")
+    fetch("https://open.er-api.com/v6/latest/USD")
       .then((r) => r.json())
       .then((d) => {
         setRate(d.rates.KES);
