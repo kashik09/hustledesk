@@ -1,16 +1,75 @@
-# React + Vite
+# HustleDesk
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+HustleDesk is a React-based FX toolkit designed for Kenyan freelancers, remote workers, and small business owners.
 
-Currently, two official plugins are available:
+It helps users:
+- Track USD to KES exchange rates
+- Understand purchasing power locally
+- Monitor subscription costs
+- Analyze historical currency trends
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Live USD → KES exchange rates
+- Purchasing power insights
+- Subscription tracker
+- 30-day historical trends
+- Responsive mobile-first UI
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tech Stack
+
+- React
+- Vite
+- Tailwind CSS
+- React Router
+- Frankfurter API
+- Recharts
+
+---
+
+## API Used
+
+Frankfurter API
+
+Endpoints:
+- https://api.frankfurter.app/latest?from=USD&to=KES
+- https://api.frankfurter.app/{date1}..{date2}?from=USD&to=KES
+
+---
+
+## Setup Instructions
+
+```bash
+git clone https://github.com/kashik09/hustledesk.git
+
+cd hustledesk
+
+npm install
+
+npm run dev
+```
+
+---
+
+## Challenges
+
+- Handling async loading states
+- Designing responsive charts
+- Managing shared team workflow using Git branches
+
+---
+
+## Known Bugs
+
+- Historical chart may briefly flash during loading
+- Exchange rates depend on API availability
+
+---
+
+## Deployment
+
+Planned deployment on Vercel.
