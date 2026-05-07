@@ -6,12 +6,12 @@ export default function Footer() {
         <p className="mt-1">
           Rates from{" "}
           <a
-            href="https://api.frankfurter.app"
+            href="https://open.er-api.com"
             target="_blank"
             rel="noopener noreferrer"
             className="underline hover:text-stone-700"
           >
-            Frankfurter API
+            Open Exchange Rates API
           </a>
         </p>
       </div>
