@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import useHistoricalRates from "../hooks/useHistoricalRates";
 // currency pairs
 const PAIRS = [
@@ -15,7 +15,7 @@ import ErrorMessage from "../components/ErrorMessage";
 const VERDICT = {
   cheap: {
     emoji: "🟢",
-    label: "Cheap to buy USD",
+    label: "Cheap to buy",
     sub: "Good time to convert or top up your balance.",
     bg: "bg-green-50",
     border: "border-green-200",
@@ -72,8 +72,9 @@ function getVerdict(today, average) {
 // ── Page component ────────────────────────────────────────────────────────────
 
 export default function Trends() {
-  // useHistoricalRates built by Person 2 — returns { data, loading, error }
-  // data shape: { rates: { [date]: { KES: number } }, ... }
+
+  const [selectedPair, setSelectedPair] = useState(PAIRS[0]); // tracks which currency pair is active, defaults to USD/KES
+
   const { data, loading, error } = useHistoricalRates("USD", "KES", 30);
 
   // Derive chart data + stats from raw API response
