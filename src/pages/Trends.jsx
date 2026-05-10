@@ -1,15 +1,16 @@
 import { useMemo, useState } from "react";
+import TrendChart from "../components/TrendChart";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import ErrorMessage from "../components/ErrorMessage";
 import useHistoricalRates from "../hooks/useHistoricalRates";
+
+
 // currency pairs
 const PAIRS = [
   { from: "USD", to: "KES", label: "USD / KES", flag: "🇺🇸" },
   { from: "GBP", to: "KES", label: "GBP / KES", flag: "🇬🇧" },
   { from: "EUR", to: "KES", label: "EUR / KES", flag: "🇪🇺" },
 ];
-import TrendChart from "../components/TrendChart";
-// These shared components are built by Person 5
-import LoadingSkeleton from "../components/LoadingSkeleton";
-import ErrorMessage from "../components/ErrorMessage";
 
 // ── Verdict config ────────────────────────────────────────────────────────────
 const VERDICT = {
