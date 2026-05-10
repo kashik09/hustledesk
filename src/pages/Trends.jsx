@@ -81,14 +81,14 @@ export default function Trends() {
     selectedPair.to,  
     30
   );
-  
+
   // Derive chart data + stats from raw API response
   const { chartData, average, todayRate, verdictKey } = useMemo(() => {
     if (!data?.rates) {
       return { chartData: [], average: 0, todayRate: 0, verdictKey: "average" };
     }
 
-    const points = buildChartData(data.rates, "KES");
+    const points = buildChartData(data.rates, selectedPair.to);
     if (points.length === 0) {
       return { chartData: [], average: 0, todayRate: 0, verdictKey: "average" };
     }
