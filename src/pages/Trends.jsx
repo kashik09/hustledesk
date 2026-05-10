@@ -75,8 +75,13 @@ export default function Trends() {
 
   const [selectedPair, setSelectedPair] = useState(PAIRS[0]); // tracks which currency pair is active, defaults to USD/KES
 
-  const { data, loading, error } = useHistoricalRates("USD", "KES", 30);
-
+// useHistoricalRates built by Person 2 — returns { data, loading, error }
+  const { data, loading, error } = useHistoricalRates(
+    selectedPair.from,
+    selectedPair.to,  
+    30
+  );
+  
   // Derive chart data + stats from raw API response
   const { chartData, average, todayRate, verdictKey } = useMemo(() => {
     if (!data?.rates) {
