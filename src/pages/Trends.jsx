@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import useHistoricalRates from "../hooks/useHistoricalRates";
+// currency pairs
 const PAIRS = [
   { from: "USD", to: "KES", label: "USD / KES", flag: "🇺🇸" },
   { from: "GBP", to: "KES", label: "GBP / KES", flag: "🇬🇧" },
