@@ -188,7 +188,7 @@ export default function Trends() {
         <StatCard
           label="Today's Rate"
           value={`KES ${todayRate.toFixed(2)}`}
-          sub="per 1 USD"
+          sub={`per 1 ${selectedPair.from}`}
         />
         <StatCard
           label="30-Day Average"
