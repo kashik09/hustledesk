@@ -220,9 +220,7 @@ function LegendItem({ color, label, dashed = false }) {
 function StatCard({ label, value, sub }) {
   return (
     <div className="bg-white rounded-2xl border border-stone-200 shadow-sm px-5 py-4">
-      <p className="text-xs text-stone-400 uppercase tracking-wide mb-1">
-        {label}
-      </p>
+      <p className="text-xs text-stone-400 uppercase tracking-wide mb-1">{label}</p>
       <p className="text-xl font-bold text-stone-800">{value}</p>
       <p className="text-xs text-stone-400 mt-0.5">{sub}</p>
     </div>
