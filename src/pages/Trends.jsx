@@ -130,7 +130,7 @@ export default function Trends() {
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold text-stone-800">
-          30-Day USD/KES Trend
+          30-Day {selectedPair.label} Trend {}
         </h1>
         <p className="text-stone-500 text-sm mt-1">
           Historical exchange rates — last 30 days
