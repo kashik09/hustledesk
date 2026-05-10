@@ -151,19 +151,37 @@ export default function Trends() {
       </div>
 
       {/* Chart card */}
-      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm px-4 pt-5 pb-4">
-        {/* Legend */}
-        <div className="flex items-center gap-5 mb-4 px-1">
-          <LegendItem color="bg-orange-600" label="USD/KES rate" />
-          <LegendItem
-            color="bg-orange-300"
-            label="30-day avg"
-            dashed
-          />
-        </div>
-
-        <TrendChart chartData={chartData} average={average} />
-      </div>
+            <div className="bg-white rounded-2xl border border-stone-200 shadow-sm px-4 pt-5 pb-4">
+      
+              {}
+              <div className="flex items-center justify-between mb-4 px-1 flex-wrap gap-3">
+      
+                {}
+                <div className="flex items-center gap-1 bg-stone-100 rounded-xl p-1">
+                  {PAIRS.map((pair) => (
+                    <button
+                      key={pair.label}
+                      onClick={() => setSelectedPair(pair)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        selectedPair.label === pair.label
+                          ? "bg-white text-orange-600 shadow-sm"
+                          : "text-stone-500 hover:text-stone-700"
+                      }`}
+                    >
+                      {pair.flag} {pair.label}
+                    </button>
+                  ))}
+                </div>
+      
+                {/* Legend */}
+                <div className="flex items-center gap-5">
+                  <LegendItem color="bg-orange-600" label={selectedPair.label} />{/* //$ CHANGED: label is now dynamic */}
+                  <LegendItem color="bg-orange-300" label="30-day avg" dashed />
+                </div>
+              </div>
+      
+              <TrendChart chartData={chartData} average={average} />
+            </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-4">
