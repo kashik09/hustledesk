@@ -193,7 +193,7 @@ export default function Trends() {
         <StatCard
           label="30-Day Average"
           value={`KES ${average.toFixed(2)}`}
-          sub="per 1 USD"
+          sub={`per 1 ${selectedPair.from}`}
         />
       </div>
 
