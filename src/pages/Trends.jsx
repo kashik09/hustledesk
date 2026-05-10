@@ -93,18 +93,12 @@ export default function Trends() {
       return { chartData: [], average: 0, todayRate: 0, verdictKey: "average" };
     }
 
-    const avg =
-      points.reduce((sum, p) => sum + p.rate, 0) / points.length;
+    const avg = points.reduce((sum, p) => sum + p.rate, 0) / points.length;
     const latest = points[points.length - 1].rate;
     const key = getVerdict(latest, avg);
 
-    return {
-      chartData: points,
-      average: avg,
-      todayRate: latest,
-      verdictKey: key,
-    };
-  }, [data]);
+    return { chartData: points, average: avg, todayRate: latest, verdictKey: key };
+  }, [data, selectedPair]);
 
   const verdict = VERDICT[verdictKey];
 
