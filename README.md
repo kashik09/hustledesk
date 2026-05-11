@@ -73,4 +73,4 @@ npm run dev
 ## Deployment
 
 Project deployed on Netlify
-https://curious-scone-0223cd.netlify.app/
+](https://hustledeskke.netlify.app/)
