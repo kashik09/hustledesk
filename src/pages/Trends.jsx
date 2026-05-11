@@ -4,12 +4,13 @@ import LoadingSkeleton from "../components/LoadingSkeleton";
 import ErrorMessage from "../components/ErrorMessage";
 import useHistoricalRates from "../hooks/useHistoricalRates";
 
-
 // currency pairs
 const PAIRS = [
   { from: "USD", to: "KES", label: "USD / KES", flag: "🇺🇸" },
-  { from: "GBP", to: "KES", label: "GBP / KES", flag: "🇬🇧" },
   { from: "EUR", to: "KES", label: "EUR / KES", flag: "🇪🇺" },
+  { from: "GBP", to: "KES", label: "GBP / KES", flag: "🇬🇧" },
+  { from: "UGX", to: "KES", label: "UGX / KES", flag: "🇺🇬" },
+  { from: "TZS", to: "KES", label: "TZS / KES", flag: "🇹🇿" },
 ];
 
 // ── Verdict config ────────────────────────────────────────────────────────────
