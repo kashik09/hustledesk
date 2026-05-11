@@ -72,4 +72,5 @@ npm run dev
 
 ## Deployment
 
-Planned deployment on Vercel.
+Project deployed on Netlify
+https://curious-scone-0223cd.netlify.app/
