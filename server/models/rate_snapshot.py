@@ -58,3 +58,22 @@ class RateSnapshot(db.Model):
             name="uq_rate_snapshot_pair_day",
         ),
     )
+
+    # ── Methods
+
+    def to_dict(self):
+        """Serialise to JSON-safe dict for API responses."""
+        return {
+            "id":            self.id,
+            "from_currency": self.from_currency,
+            "to_currency":   self.to_currency,
+            "rate":          self.rate,
+            "source":        self.source,
+            "captured_at":   self.captured_at.isoformat(),
+        }
+
+    def __repr__(self):
+        return (
+            f"<RateSnapshot {self.from_currency}/{self.to_currency} "
+            f"@ {self.rate} on {self.captured_at.date()}>"
+        )
