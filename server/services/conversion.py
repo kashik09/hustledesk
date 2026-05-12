@@ -68,3 +68,25 @@ def cross_convert(from_currency: str, to_currency: str, amount: float) -> dict |
         "rate_used":     round(effective_rate, 6),
         "captured_at":   datetime.utcnow().isoformat(),
     }
+
+# ── Private helper
+ 
+def _get_today_snapshot(from_currency: str, today) -> RateSnapshot | None:
+    """
+    Look up today's snapshot for from_currency → KES.
+    If missing, trigger a live fetch and store via rate_fetcher.
+    Returns None if both DB and live fetch fail.
+    """
+    snapshot = (
+        RateSnapshot.query
+        .filter_by(from_currency=from_currency, to_currency=BASE_CURRENCY)
+        .filter(db.func.date(RateSnapshot.captured_at) == today)
+        .first()
+    )
+ 
+    if not snapshot:
+        # Not in DB yet — fetch live and store
+        from server.services.rate_fetcher import fetch_and_store_rate
+        snapshot = fetch_and_store_rate(from_currency, BASE_CURRENCY)
+ 
+    return snapshot
