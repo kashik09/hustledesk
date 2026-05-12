@@ -1,1 +1,22 @@
-{}
+[
+  {
+    "price": 1300,
+    "item": "plates of nyama choma"
+  },
+  {
+    "price": 100,
+    "item": "matatu rides"
+  },
+  {
+    "price": 500,
+    "item": "lunch meals"
+  },
+  {
+    "price": 4500,
+    "item": "months of WiFi"
+  },
+  {
+    "price": 50,
+    "item": "cups of chai"
+  }
+]
