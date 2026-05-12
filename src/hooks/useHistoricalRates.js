@@ -1,50 +1,58 @@
 import { useEffect, useState } from "react";
 
 /**
- * useHistoricalRates
- * Fetches current rate and generates realistic historical trend
- * (Free historical APIs for KES require paid keys)
+ * Fetches 1-year historical-like exchange data
+ * for any base currency.
  */
-export default function useHistoricalRates(from = "USD", to = "KES", days = 30) {
-  const [data, setData] = useState(null);
+
+export default function useHistoricalRates(
+  baseCurrency = "USD"
+) {
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchHistory = async () => {
+    const fetchHistoricalRates = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Fetch current rate
-        const res = await fetch("https://open.er-api.com/v6/latest/USD");
-        if (!res.ok) throw new Error("Failed to fetch rates");
+        // Fetch latest real exchange rate
+        const res = await fetch(
+          `https://open.er-api.com/v6/latest/${baseCurrency}`
+        );
 
-        const json = await res.json();
-        const currentRate = json.rates?.KES;
-
-        if (!currentRate) throw new Error("KES rate not available");
-
-        // Generate realistic 30-day trend based on current rate
-        // Using seeded randomness so it's consistent per day
-        const rates = {};
-        const baseVariance = currentRate * 0.015; // 1.5% base variance
-
-        for (let i = days; i >= 0; i--) {
-          const date = new Date();
-          date.setDate(date.getDate() - i);
-          const dateStr = date.toISOString().split("T")[0];
-
-          // Seed based on date for consistency
-          const seed = date.getDate() + date.getMonth() * 31;
-          const pseudoRandom = Math.sin(seed * 9999) * 0.5 + 0.5;
-          const trend = (i / days) * baseVariance * 0.5; // Slight upward trend
-          const variance = (pseudoRandom - 0.5) * baseVariance * 2;
-
-          rates[dateStr] = { [to]: currentRate - trend + variance };
+        if (!res.ok) {
+          throw new Error("Failed to fetch exchange rates");
         }
 
-        setData({ rates });
+        const json = await res.json();
+
+        const currentRate = json?.rates?.KES;
+
+        if (!currentRate) {
+          throw new Error("KES exchange rate not found");
+        }
+
+        /**
+         * Generate 365 days fluctuation data
+         */
+
+        const historicalData = [];
+
+        for (let i = 365; i >= 0; i--) {
+          const fluctuation = Math.random() * 8 - 4;
+
+          historicalData.push({
+            date: `${i}d ago`,
+            rate: Number(
+              (currentRate + fluctuation).toFixed(2)
+            ),
+          });
+        }
+
+        setData(historicalData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -52,8 +60,8 @@ export default function useHistoricalRates(from = "USD", to = "KES", days = 30) 
       }
     };
 
-    fetchHistory();
-  }, [from, to, days]);
+    fetchHistoricalRates();
+  }, [baseCurrency]);
 
   return { data, loading, error };
 }

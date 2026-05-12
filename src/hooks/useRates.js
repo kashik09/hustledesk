@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 
 /**
- * useRates
- * Fetches live USD → KES exchange rate
- * Returns: { data, loading, error }
+ * Fetch live exchange rates
+ * useRates("USD""GBP" etc)
  */
 
-export default function useRates() {
+export default function useRates(baseCurrency = "USD") {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,7 +17,7 @@ export default function useRates() {
         setError(null);
 
         const res = await fetch(
-          "https://open.er-api.com/v6/latest/USD"
+          `https://open.er-api.com/v6/latest/${baseCurrency}`
         );
 
         if (!res.ok) {
@@ -36,7 +35,7 @@ export default function useRates() {
     };
 
     fetchRates();
-  }, []);
+  }, [baseCurrency]);
 
   return { data, loading, error };
 }
