@@ -1,87 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import SubscriptionForm from "../components/SubscriptionForm";
 import SubscriptionList from "../components/SubscriptionList";
+import useSubscriptions from "../hooks/useSubscriptions";
+import useRates from "../hooks/useRates";
+import { formatCurrency } from "../utils/format";
 
-// ─── Hooks (provided by Person 2) ────────────────────────────────────────────
-// import { useSubscriptions } from "../hooks/useSubscriptions";
-// import { useRates } from "../hooks/useRates";
-// import { formatCurrency } from "../utils/formatCurrency";
-//
-// For standalone dev / demo, we shim them below.
-// Remove the shims and uncomment the imports once Person 2's hooks are merged.
-// ─────────────────────────────────────────────────────────────────────────────
-
-/* ── SHIM: useSubscriptions ─────────────────────────────────────────── */
-function useSubscriptions() {
-  const STORAGE_KEY = "hd_subscriptions";
-  const load = () => {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    } catch {
-      return [];
-    }
-  };
-  const [subs, setSubs] = useState(load);
-
-  const addSubscription = (sub) => {
-    const next = [...subs, { ...sub, id: crypto.randomUUID() }];
-    setSubs(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  };
-
-  const deleteSubscription = (id) => {
-    const next = subs.filter((s) => s.id !== id);
-    setSubs(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  };
-
-  return { subscriptions: subs, addSubscription, deleteSubscription };
-}
-
-/* ── SHIM: useRates ─────────────────────────────────────────────────── */
-function useRates() {
-  const [rate, setRate] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch("https://open.er-api.com/v6/latest/USD")
-      .then((r) => r.json())
-      .then((d) => {
-        setRate(d.rates.KES);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Could not fetch live rate.");
-        setLoading(false);
-      });
-  }, []);
-
-  return { rate, loading, error };
-}
-
-/* ── SHIM: formatCurrency ───────────────────────────────────────────── */
-function formatCurrency(amount, currency = "KES") {
-  return new Intl.NumberFormat("en-KE", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Billing cycle → monthly equivalent multiplier
-// ─────────────────────────────────────────────────────────────────────────────
 const CYCLE_MULTIPLIER = {
   monthly: 1,
   yearly: 1 / 12,
   weekly: 52 / 12,
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
 export default function Subscriptions() {
   const { subscriptions, addSubscription, deleteSubscription } = useSubscriptions();
-  const { rate, loading: rateLoading, error: rateError } = useRates();
+  const { rate, loading: rateLoading, error: rateError } = useRates("USD", "KES");
 
   // "What-if" input state
   const [whatIfRate, setWhatIfRate] = useState("");
@@ -108,7 +41,7 @@ export default function Subscriptions() {
 
   return (
     <div className="hd-page">
-      {/* ── Header ── */}
+      {/* Header */}
       <header className="hd-header">
         <div className="hd-header-inner">
           <div>
@@ -120,14 +53,14 @@ export default function Subscriptions() {
           </div>
           <div className="hd-rate-badge">
             {rateLoading ? (
-              <span className="hd-rate-loading">Fetching rate…</span>
+              <span className="hd-rate-loading">Fetching rate...</span>
             ) : rateError ? (
-              <span className="hd-rate-err" title={rateError}>⚡ Rate unavailable</span>
+              <span className="hd-rate-err" title={rateError}>Rate unavailable</span>
             ) : (
               <>
                 <span className="hd-rate-label">Live rate</span>
                 <span className="hd-rate-value">1 USD = KES {rate?.toFixed(2)}</span>
-                <span className="hd-rate-source">Frankfurter API · live</span>
+                <span className="hd-rate-source">Open Exchange Rates</span>
               </>
             )}
           </div>
@@ -135,13 +68,13 @@ export default function Subscriptions() {
       </header>
 
       <main className="hd-main">
-        {/* ── Add form ── */}
+        {/* Add form */}
         <section className="hd-section">
           <h2 className="hd-section-title">Add a subscription</h2>
           <SubscriptionForm onAdd={addSubscription} />
         </section>
 
-        {/* ── List ── */}
+        {/* List */}
         <section className="hd-section">
           <h2 className="hd-section-title">
             Your subscriptions
@@ -152,12 +85,12 @@ export default function Subscriptions() {
 
           {rateLoading && subscriptions.length > 0 && (
             <div className="hd-inline-notice">
-              <span className="hd-spinner" /> Fetching live KES rate…
+              <span className="hd-spinner" /> Fetching live KES rate...
             </div>
           )}
           {rateError && subscriptions.length > 0 && (
             <div className="hd-inline-notice hd-inline-notice--warn">
-              ⚠ {rateError} — KES values will show once rate loads.
+              {rateError} - KES values will show once rate loads.
             </div>
           )}
 
@@ -168,7 +101,7 @@ export default function Subscriptions() {
           />
         </section>
 
-        {/* ── Total bleed ── */}
+        {/* Total bleed */}
         {subscriptions.length > 0 && (
           <section className="hd-section">
             <div className="hd-bleed-card">
@@ -188,13 +121,13 @@ export default function Subscriptions() {
                   </>
                 ) : (
                   <div className="hd-bleed-kes hd-bleed-kes--loading">
-                    {rateLoading ? "Calculating…" : "—"}
+                    {rateLoading ? "Calculating..." : "-"}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* ── What-if rate ── */}
+            {/* What-if rate */}
             <div className="hd-whatif-card">
               <div className="hd-whatif-header">
                 <div>
@@ -228,8 +161,8 @@ export default function Subscriptions() {
                     {whatIfDiff !== null && (
                       <span className="hd-whatif-delta">
                         {whatIfDiff > 0
-                          ? `▲ +${formatCurrency(Math.round(whatIfDiff))} more`
-                          : `▼ ${formatCurrency(Math.round(Math.abs(whatIfDiff)))} less`}
+                          ? `+${formatCurrency(Math.round(whatIfDiff))} more`
+                          : `${formatCurrency(Math.round(Math.abs(whatIfDiff)))} less`}
                       </span>
                     )}
                   </div>
@@ -239,7 +172,7 @@ export default function Subscriptions() {
               {whatIfKES !== null && (
                 <p className="hd-whatif-verdict">
                   {whatIfDiff > 0
-                    ? `If USD/KES hits ${parsedWhatIf.toFixed(0)}, you'd pay ${formatCurrency(Math.round(whatIfKES))} instead — that's ${formatCurrency(Math.round(whatIfDiff))} more every month.`
+                    ? `If USD/KES hits ${parsedWhatIf.toFixed(0)}, you'd pay ${formatCurrency(Math.round(whatIfKES))} instead - that's ${formatCurrency(Math.round(whatIfDiff))} more every month.`
                     : `At ${parsedWhatIf.toFixed(0)} KES per dollar, you'd save ${formatCurrency(Math.round(Math.abs(whatIfDiff)))} per month compared to the current rate.`}
                 </p>
               )}
@@ -264,7 +197,7 @@ const pageStyles = `
     font-family: 'DM Sans', sans-serif;
   }
 
-  /* ── HEADER ── */
+  /* HEADER */
   .hd-header {
     background: linear-gradient(135deg, #3a2e1f 0%, #5c4a2a 100%);
     padding: 36px 24px 32px;
@@ -344,7 +277,7 @@ const pageStyles = `
     color: rgba(255,255,255,0.5);
   }
 
-  /* ── MAIN ── */
+  /* MAIN */
   .hd-main {
     max-width: 860px;
     margin: 0 auto;
@@ -377,7 +310,7 @@ const pageStyles = `
     border-radius: 50%;
   }
 
-  /* ── INLINE NOTICE ── */
+  /* INLINE NOTICE */
   .hd-inline-notice {
     display: flex;
     align-items: center;
@@ -406,7 +339,7 @@ const pageStyles = `
     flex-shrink: 0;
   }
 
-  /* ── BLEED CARD ── */
+  /* BLEED CARD */
   .hd-bleed-card {
     display: flex;
     align-items: center;
@@ -459,7 +392,7 @@ const pageStyles = `
     color: rgba(255,255,255,0.85);
   }
 
-  /* ── WHAT-IF CARD ── */
+  /* WHAT-IF CARD */
   .hd-whatif-card {
     background: #fffdf7;
     border: 2px solid #f0e9d6;
