@@ -11,7 +11,7 @@ const PurchasingPowerCard = ({ rate }) => {
       </h2>
 
       <p className="text-stone-600 mb-4">
-        What does <span className="font-semibold">$50</span> feel like in
+        What does <span className="font-semibold">${usdAmount}</span> feel like in
         Nairobi today?
       </p>
 
@@ -22,19 +22,29 @@ const PurchasingPowerCard = ({ rate }) => {
       </div>
 
       <div className="space-y-3">
-        {purchasingPower.map((entry, index) => (
-          <div
-            key={index}
-            className="flex justify-between items-center border-b border-stone-100 pb-2"
-          >
-            <span className="text-stone-700">{entry.item}</span>
+        {purchasingPower.map((entry, index) => {
+          const quantity = Math.floor(kesValue / entry.price);
 
-            <span className="font-semibold text-stone-900">
-              ~{entry.amount}
-            </span>
-          </div>
-        ))}
+          return (
+            <div
+              key={index}
+              className="flex justify-between items-center border-b border-stone-100 pb-2"
+            >
+              <span className="text-stone-700">{entry.item}</span>
+              <div className="text-right">
+                <span className="font-semibold text-stone-900">~{quantity}</span>
+                <span className="text-xs text-stone-400 ml-2">
+                  @ KES {entry.price.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      <p className="text-xs text-stone-400 mt-4 text-center">
+        Based on current rate: 1 USD = KES {rate?.toFixed(2)}
+      </p>
     </div>
   );
 };
