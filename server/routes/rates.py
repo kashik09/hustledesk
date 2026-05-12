@@ -65,3 +65,59 @@ def get_latest():
         return jsonify({"error": "Could not retrieve rate. Try again later."}), 503
 
     return jsonify(snapshot.to_dict()), 200
+
+
+@rates_bp.route("/rates/history", methods=["GET"])
+def get_history():
+    """
+    GET /api/rates/history?from=USD&days=30
+    Returns snapshots for the last N days for a currency pair.
+    Defaults to 30 days.
+
+    Response:
+    {
+        "from_currency": "USD",
+        "to_currency":   "KES",
+        "days":          30,
+        "snapshots": [
+            { "date": "2024-04-01", "rate": 128.5, "source": "open.er-api.com" },
+            ...
+        ]
+    }
+    """
+    from_currency = request.args.get("from", "USD").upper()
+    days = request.args.get("days", 30, type=int)
+
+    # Validate currency
+    err = validate_currency(from_currency)
+    if err:
+        return err
+
+    # Clamp days to a sensible range
+    if days < 1 or days > 365:
+        return jsonify({"error": "days must be between 1 and 365"}), 400
+
+    # Compute date window
+    since = datetime.utcnow().date() - timedelta(days=days)
+
+    snapshots = (
+        RateSnapshot.query
+        .filter_by(from_currency=from_currency, to_currency=BASE_CURRENCY)
+        .filter(db.func.date(RateSnapshot.captured_at) >= since)
+        .order_by(RateSnapshot.captured_at.asc())
+        .all()
+    )
+
+    return jsonify({
+        "from_currency": from_currency,
+        "to_currency":   BASE_CURRENCY,
+        "days":          days,
+        "snapshots": [
+            {
+                "date":   s.captured_at.strftime("%Y-%m-%d"),
+                "rate":   s.rate,
+                "source": s.source,
+            }
+            for s in snapshots
+        ]
+    }), 200
