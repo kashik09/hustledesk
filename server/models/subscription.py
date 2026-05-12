@@ -1,3 +1,12 @@
+"""
+Subscription model — user-owned, multi-currency.
+
+Each subscription stores its original billing currency (ISO 4217) so we
+never lose the source-of-truth amount. Display conversion to the user's
+home_currency happens at read time, not at write time.
+
+Answers teacher Q1 ('What if sub is in KSH?'). See docs/RATE_METHODOLOGY.md.
+"""
 from datetime import datetime
 from server.extensions import db
 

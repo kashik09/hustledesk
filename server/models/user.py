@@ -1,3 +1,12 @@
+"""
+User model — auth + home_currency preference.
+
+home_currency (defaults to 'KES') is the display currency for all
+dashboard totals. Subscription.currency stores the original billing
+currency separately. Conversion happens at read time.
+
+password_hash is stored via flask_bcrypt; never exposed in to_dict.
+"""
 from datetime import datetime
 from server.extensions import db, bcrypt
 
