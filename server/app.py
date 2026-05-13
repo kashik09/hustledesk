@@ -33,8 +33,8 @@ def create_app(config_name=None):
     def health_check():
         return jsonify({"status": "ok", "service": "hustledesk-api"})
 
-    # Register blueprints here as teammates add them
-    # from server.routes.auth import auth_bp
-    # app.register_blueprint(auth_bp, url_prefix="/api")
+    # Register blueprints
+    from server.routes.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
     return app
