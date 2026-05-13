@@ -55,6 +55,25 @@ npm run dev
 
 ---
 
+## Architecture & Design Decisions
+
+HustleDesk Phase 2 introduces a Flask + PostgreSQL backend, user
+authentication, multi-currency support (East Africa + USD/EUR/GBP),
+and a server-owned rate history system.
+
+For details on currency handling, rate snapshots, and FX methodology,
+see [docs/RATE_METHODOLOGY.md](docs/RATE_METHODOLOGY.md).
+
+## Data Model
+
+Four resources:
+- `User` — auth + home currency + budget
+- `Subscription` — user-owned, multi-currency
+- `RateSnapshot` — global FX history log
+- `SubscriptionTemplate` — public catalog (128 rows, 33 services)
+
+---
+
 ## Challenges
 
 - Handling async loading states

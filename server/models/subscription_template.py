@@ -1,3 +1,13 @@
+"""
+SubscriptionTemplate — public catalog of known sub prices.
+
+NOT user-owned. Seeds 128 rows across 33 services in 6 countries
+(KE, UG, TZ, RW, US, GB). Powers autocomplete on the sub creation
+form so users don't type wrong amounts.
+
+Answers teacher Q1 ('What if sub is in KSH?').
+See docs/RATE_METHODOLOGY.md.
+"""
 from datetime import datetime
 from server.extensions import db
 

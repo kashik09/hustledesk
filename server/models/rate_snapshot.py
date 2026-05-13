@@ -1,3 +1,16 @@
+"""
+RateSnapshot — global FX history log.
+
+NOT user-owned. One row per (from_currency, to_currency, captured_at)
+triple — shared across all users for efficiency. Replaces the Phase 1
+pseudo-random historical data with real accumulated snapshots.
+
+Cross-rate math: convert(UGX, KES) = rate_USD_KES / rate_USD_UGX
+(USD-pegged pivot).
+
+Answers teacher Q2 ('What about rate fluctuation?').
+See docs/RATE_METHODOLOGY.md.
+"""
 from datetime import datetime
 from server.extensions import db
 
