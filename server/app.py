@@ -22,6 +22,9 @@ def create_app(config_name=None):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+
+    # Import models so Alembic can detect them
+    from server import models  # noqa: F401
     cors.init_app(app, origins=app.config.get("CORS_ORIGINS", ["http://localhost:5173"]))
     bcrypt.init_app(app)
 
