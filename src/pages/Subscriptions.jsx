@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import SubscriptionForm from "../components/SubscriptionForm";
 import SubscriptionList from "../components/SubscriptionList";
 import { useAuth } from "../hooks/useAuth";
+import "src\subscriptions.css";
 
 // ─── API helpers ────────────────────────────────────────────────────────────
 
