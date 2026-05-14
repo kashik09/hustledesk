@@ -1,226 +1,153 @@
-const CYCLE_MULTIPLIER = {
-  monthly: 1,
-  yearly: 1 / 12,
-  weekly: 52 / 12,
+import { useState } from "react";
+
+const CATEGORY_META = {
+  productivity:  { label: "Productivity",  color: "#4ade80", bg: "rgba(74,222,128,.12)" },
+  entertainment: { label: "Entertainment", color: "#f97316", bg: "rgba(249,115,22,.12)" },
+  dev_tools:     { label: "Dev Tools",     color: "#60a5fa", bg: "rgba(96,165,250,.12)" },
+  marketing:     { label: "Marketing",     color: "#e879f9", bg: "rgba(232,121,249,.12)" },
+  storage:       { label: "Storage",       color: "#facc15", bg: "rgba(250,204,21,.12)" },
+  other:         { label: "Other",         color: "#94a3b8", bg: "rgba(148,163,184,.12)" },
 };
 
-const CYCLE_LABEL = {
-  monthly: "/mo",
-  yearly: "/yr",
-  weekly: "/wk",
+const CYCLE_LABELS = {
+  monthly:  "/mo",
+  yearly:   "/yr",
+  weekly:   "/wk",
+  one_time: " once",
 };
 
+// ─── Single row ──────────────────────────────────────────────────────────────
 
-export default function SubscriptionList({ subscriptions = [], rate, onDelete }) {
-  if (subscriptions.length === 0) {
+function SubscriptionRow({ sub, onEdit, onDelete }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const cat   = CATEGORY_META[sub.category] ?? CATEGORY_META.other;
+  const cycle = CYCLE_LABELS[sub.billing_cycle] ?? "";
+
+  // KES amount (may be undefined on freshly created subs)
+  const kes = sub.amount_kes
+    ? `KES ${Math.round(sub.amount_kes).toLocaleString()}`
+    : null;
+
+  return (
+    <li className="sub-row">
+      {/* Left: name + badges */}
+      <div className="sub-main">
+        <span className="sub-name">{sub.name}</span>
+        <div className="sub-badges">
+          <span
+            className="badge badge--category"
+            style={{ color: cat.color, background: cat.bg }}
+          >
+            {cat.label}
+          </span>
+          <span className="badge badge--currency">{sub.currency}</span>
+        </div>
+      </div>
+
+      {/* Right: price + actions */}
+      <div className="sub-right">
+        <div className="sub-price">
+          <span className="price-original">
+            {sub.currency} {parseFloat(sub.amount).toFixed(2)}{cycle}
+          </span>
+          {kes && (
+            <span className="price-kes">{kes}</span>
+          )}
+        </div>
+
+        <div className="sub-actions">
+          <button
+            className="icon-btn icon-btn--edit"
+            onClick={() => onEdit(sub)}
+            title="Edit subscription"
+            aria-label={`Edit ${sub.name}`}
+          >
+            ✎
+          </button>
+
+          {confirmDelete ? (
+            <>
+              <button
+                className="icon-btn icon-btn--confirm"
+                onClick={() => onDelete(sub.id)}
+                aria-label="Confirm delete"
+              >
+                ✓
+              </button>
+              <button
+                className="icon-btn icon-btn--cancel"
+                onClick={() => setConfirmDelete(false)}
+                aria-label="Cancel delete"
+              >
+                ✕
+              </button>
+            </>
+          ) : (
+            <button
+              className="icon-btn icon-btn--delete"
+              onClick={() => setConfirmDelete(true)}
+              title="Delete subscription"
+              aria-label={`Delete ${sub.name}`}
+            >
+              ⌫
+            </button>
+          )}
+        </div>
+      </div>
+    </li>
+  );
+}
+
+// ─── Skeleton loader ─────────────────────────────────────────────────────────
+
+function SkeletonRow() {
+  return (
+    <li className="sub-row sub-row--skeleton" aria-hidden="true">
+      <div className="skeleton skeleton--name" />
+      <div className="skeleton skeleton--badge" />
+      <div className="skeleton skeleton--price" />
+    </li>
+  );
+}
+
+// ─── Main list component ─────────────────────────────────────────────────────
+
+export default function SubscriptionList({
+  subscriptions = [],
+  loading = false,
+  onEdit,
+  onDelete,
+}) {
+  if (loading) {
     return (
-      <div className="hd-empty">
-        <div className="hd-empty-title">No subscriptions yet</div>
-        <div className="hd-empty-sub">Add your first one above and see how much it really costs in KES.</div>
-        <style>{emptyStyles}</style>
+      <ul className="sub-list" aria-label="Loading subscriptions">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <SkeletonRow key={i} />
+        ))}
+      </ul>
+    );
+  }
+
+  if (!subscriptions.length) {
+    return (
+      <div className="sub-empty">
+        <span className="sub-empty-icon">📭</span>
+        <p className="sub-empty-text">No subscriptions yet.</p>
+        <p className="sub-empty-hint">Hit "Add Subscription" to track your first one.</p>
       </div>
     );
   }
 
-  const handleDelete = (sub) => {
-    const confirmed = window.confirm(
-      `Remove "${sub.name}" (${CYCLE_LABEL[sub.cycle] === "/mo" ? "monthly" : sub.cycle}) from your tracker?`
-    );
-    if (confirmed) onDelete(sub.id);
-  };
-
   return (
-    <div className="hd-list">
-      {subscriptions.map((sub, i) => {
-        const monthlyUSD = sub.amount * CYCLE_MULTIPLIER[sub.cycle];
-        const monthlyKES = rate ? monthlyUSD * rate : null;
-
-        return (
-          <div
-            key={sub.id}
-            className="hd-list-item"
-            style={{ animationDelay: `${i * 60}ms` }}
-          >
-            {/* Left: info */}
-            <div className="hd-item-left">
-              <div>
-                <div className="hd-item-name">{sub.name}</div>
-                <div className="hd-item-meta">
-                  ${sub.amount.toFixed(2)}{CYCLE_LABEL[sub.cycle]}
-                  <span className="hd-cycle-badge">{sub.cycle}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: KES + delete */}
-            <div className="hd-item-right">
-              <div className="hd-item-kes">
-                {monthlyKES !== null ? (
-                  <>
-                    <span className="hd-kes-value">KES {Math.round(monthlyKES).toLocaleString()}</span>
-                    <span className="hd-kes-label">/month</span>
-                  </>
-                ) : (
-                  <span className="hd-kes-loading">—</span>
-                )}
-              </div>
-              <button
-                className="hd-delete-btn"
-                onClick={() => handleDelete(sub)}
-                title={`Remove ${sub.name}`}
-                aria-label={`Delete ${sub.name}`}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        );
-      })}
-
-      <style>{listStyles}</style>
-    </div>
+    <ul className="sub-list" aria-label="Your subscriptions">
+      {subscriptions.map((sub) => (
+        <SubscriptionRow
+          key={sub.id}
+          sub={sub}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      ))}
+    </ul>
   );
 }
-
-const emptyStyles = `
-  .hd-empty {
-    text-align: center;
-    padding: 52px 24px;
-    background: #fffdf7;
-    border: 2px dashed #e0d0b0;
-    border-radius: 20px;
-    color: #b09a6e;
-  }
-  .hd-empty-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: #5c4a2a;
-    margin-bottom: 8px;
-  }
-  .hd-empty-sub {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    max-width: 320px;
-    margin: 0 auto;
-    color: #8a7355;
-    line-height: 1.6;
-  }
-`;
-
-const listStyles = `
-  .hd-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  @keyframes hd-slide-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .hd-list-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #fffdf7;
-    border: 2px solid #f0e9d6;
-    border-radius: 14px;
-    padding: 14px 18px;
-    transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
-    animation: hd-slide-in 0.35s ease both;
-    box-shadow: 2px 2px 0 #f0e9d6;
-  }
-  .hd-list-item:hover {
-    border-color: #d4a843;
-    box-shadow: 3px 3px 0 #e8d9b8;
-    transform: translateY(-1px);
-  }
-  .hd-item-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-width: 0;
-  }
-  .hd-item-name {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: #3a2e1f;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 180px;
-  }
-  .hd-item-meta {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    color: #8a7355;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 2px;
-  }
-  .hd-cycle-badge {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    background: #fff0cc;
-    color: #7a5c28;
-    border-radius: 20px;
-    padding: 2px 8px;
-    border: 1px solid #e8d9b8;
-  }
-  .hd-item-right {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-shrink: 0;
-  }
-  .hd-item-kes {
-    text-align: right;
-  }
-  .hd-kes-value {
-    display: block;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 800;
-    color: #3a2e1f;
-  }
-  .hd-kes-label {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    color: #b09a6e;
-  }
-  .hd-kes-loading {
-    font-size: 18px;
-    color: #d4c8a8;
-  }
-  .hd-delete-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: 1.5px solid #f0e0d0;
-    background: #fff5f0;
-    color: #c0392b;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .hd-delete-btn:hover {
-    background: #c0392b;
-    border-color: #c0392b;
-    color: #fff;
-    transform: scale(1.1);
-  }
-  @media (max-width: 480px) {
-    .hd-item-name { max-width: 110px; }
-    .hd-kes-value { font-size: 14px; }
-    .hd-list-item { padding: 12px 13px; }
-  }
-`;
