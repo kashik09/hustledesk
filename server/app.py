@@ -35,6 +35,8 @@ def create_app(config_name=None):
 
     # Register blueprints
     from server.routes.auth import auth_bp
+    from server.routes.subscriptions import subscriptions_bp
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
+    app.register_blueprint(subscriptions_bp, url_prefix="/api/subscriptions")
 
     return app
