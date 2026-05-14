@@ -1,34 +1,19 @@
-import { Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import Dashboard from './pages/Dashboard'
-import Subscriptions from './pages/Subscriptions'
-import Trends from './pages/Trends'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-function NotFound() {
-  return (
-    <div className="p-8 text-center">
-      <h1 className="text-2xl font-bold text-stone-800">404</h1>
-      <p className="text-stone-500 mt-2">Page not found</p>
-    </div>
-  )
-}
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col">
-      <Navbar />
-      <div className="flex-1">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/subscriptions" element={<Subscriptions />} />
-          <Route path="/trends" element={<Trends />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-      <Footer />
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
