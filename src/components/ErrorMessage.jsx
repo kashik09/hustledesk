@@ -9,22 +9,4 @@ const ErrorMessage = ({ message }) => {
   );
 };
 
-export default function ErrorMessage({ message }) {
-  if (!message) return null;
-
-  return (
-    <div
-      style={{
-        background: "#ffe5e5",
-        color: "#b00020",
-        padding: "10px 12px",
-        borderRadius: "6px",
-        margin: "10px 0",
-        fontSize: "14px",
-        border: "1px solid #ffb3b3"
-      }}
-    >
-      {message}
-    </div>
-  );
-}
+export default ErrorMessage;

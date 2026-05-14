@@ -12,32 +12,4 @@ const LoadingSkeleton = () => {
   );
 };
 
-export default function LoadingSkeleton() {
-  return (
-    <div style={{ padding: "16px" }}>
-      <div className="skeleton-line" />
-      <div className="skeleton-line" />
-      <div className="skeleton-line" />
-      <div className="skeleton-line" />
-    </div>
-  );
-}
-.skeleton-line {
-  height: 12px;
-  background: #e0e0e0;
-  margin: 8px 0;
-  border-radius: 6px;
-  animation: pulse 1.2s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 0.6;
-  }
-}
+export default LoadingSkeleton;
