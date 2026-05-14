@@ -3,9 +3,7 @@ import SubscriptionForm from "../components/SubscriptionForm";
 import SubscriptionList from "../components/SubscriptionList";
 import useRates from "../hooks/useRates";
 import "../subscriptions.css";
-
-// TODO: Import useAuth from AuthContext once PR #13 is merged
-// import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
 // ─── API helpers ────────────────────────────────────────────────────────────
 
@@ -51,9 +49,7 @@ const CATEGORY_COLORS = {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function Subscriptions() {
-  // TODO: Get user from AuthContext once PR #13 is merged
-  // const { user } = useAuth();
-  const user = null; // Stub until auth is wired
+  const { user } = useAuth();
   const { rates } = useRates("USD", "KES");
 
   // list state
