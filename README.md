@@ -1,75 +1,136 @@
-# HustleDesk
 
-HustleDesk is a React-based FX toolkit designed for Kenyan freelancers, remote workers, and small business owners.
+#  HustleDesk
 
-It helps users:
-- Track USD to KES exchange rates
-- Understand purchasing power locally
-- Monitor subscription costs
-- Analyze historical currency trends
+A full-stack subscription tracking and currency intelligence platform.
 
 ---
 
-## Features
+#  Overview
 
-- Live USD → KES exchange rates
-- Purchasing power insights
-- Subscription tracker
-- 30-day historical trends
-- Responsive mobile-first UI
-
----
-
-## Tech Stack
-
-- React
-- Vite
-- Tailwind CSS
-- React Router
-- Frankfurter API
-- Recharts
+HustleDesk helps users:
+- Track subscriptions across services (Netflix, Spotify, etc.)
+- View spending in multiple currencies
+- Use smart templates to quickly add subscriptions
+- Analyze rate changes and currency impact
 
 ---
 
-## API Used
+# System Architecture
 
-Frankfurter API
+## Backend (Flask)
+- Flask API (app factory pattern)
+- SQLAlchemy ORM
+- Flask-Migrate (database migrations)
+- Flask-JWT-Extended (authentication)
+- Flask-CORS (frontend integration)
 
-Endpoints:
-- https://api.frankfurter.app/latest?from=USD&to=KES
-- https://api.frankfurter.app/{date1}..{date2}?from=USD&to=KES
-
----
-
-## Setup Instructions
-
-```bash
-git clone https://github.com/kashik09/hustledesk.git
-
-cd hustledesk
-
-npm install
-
-npm run dev
-```
+## Frontend (React)
+- React hooks-based architecture
+- Context-based authentication
+- Modular reusable components
+- API-driven UI (no mock data)
 
 ---
 
-## Challenges
+# 👥 Team Responsibilities
 
-- Handling async loading states
-- Designing responsive charts
-- Managing shared team workflow using Git branches
-
----
-
-## Known Bugs
-
-- Historical chart may briefly flash during loading
-- Exchange rates depend on API availability
+## Person 2 — Authentication
+- JWT login/signup system
+- Protected routes
+- AuthContext (frontend state)
+- bcrypt password hashing
 
 ---
 
-## Deployment
+## Person 3 — Subscriptions Core
+- Subscription CRUD API
+- Ownership enforcement
+- Categories system
+- CSV export endpoint
 
-Planned deployment on Vercel.
+---
+
+## Person 4 — FX Rates Engine
+- Live currency rate fetching
+- Rate snapshots database
+- Multi-currency conversion logic
+- Historical rate tracking
+
+---
+
+## Person 5 — Templates & UI Polish 
+- Subscription templates system
+- Autocomplete search (Netflix, Spotify, etc.)
+- Shared CurrencyPicker component
+- Settings page (home currency)
+- UI skeleton loaders & error handling
+- README + documentation polish
+
+---
+
+#  Features
+
+##  Authentication
+- Signup / Login
+- JWT-based sessions
+- Protected routes
+
+---
+
+##  Subscriptions
+- Create / edit / delete subscriptions
+- Category tagging:
+  - productivity
+  - entertainment
+  - dev_tools
+  - marketing
+  - storage
+  - other
+
+---
+
+##  Smart Templates
+- Search subscriptions by service name
+- Auto-fill form fields:
+  - service name
+  - plan
+  - price
+  - currency
+  - category
+- Country-based filtering
+
+---
+
+##  Currency System
+Supported currencies:
+- USD
+- EUR
+- GBP
+- KES
+- UGX
+- TZS
+
+Features:
+- CurrencyPicker reusable component
+- Cross-currency conversion logic (backend)
+- Home currency setting per user
+
+---
+
+##  Settings
+- Set preferred home currency
+- Future integration with backend `/me` endpoint
+
+---
+
+##  Rates System
+- Live FX rate fetching
+- Historical snapshots
+- Mid-market rate calculation
+- Rate provenance display
+
+---
+
+#  API Endpoints
+
+## Auth

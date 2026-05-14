@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SubscriptionAutocomplete from "./SubscriptionAutocomplete";
 
 const PRESET_SUBS = [
   { name: "Netflix", amount: 15.49 },
