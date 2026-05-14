@@ -1,20 +1,22 @@
 # HustleDesk
 
-HustleDesk is a React-based FX toolkit designed for Kenyan freelancers, remote workers, and small business owners.
+FX subscription tracking toolkit for Kenyan freelancers. Track SaaS subscriptions across multiple currencies and see the true cost in Kenyan Shillings (KES).
 
-It helps users:
-- Track USD to KES exchange rates
-- Understand purchasing power locally
-- Monitor subscription costs
-- Analyze historical currency trends
+## Live Demo
+
+- **Frontend:** https://hustledesk.vercel.app
+- **Backend API:** https://hustledesk-api-9qwl.onrender.com
 
 ---
 
 ## Features
 
-- Live USD → KES exchange rates
-- Purchasing power insights
-- Subscription tracker
+- User authentication (signup/login with JWT)
+- Subscription CRUD with ownership enforcement
+- Multi-currency support (KES, USD, EUR, GBP, UGX, TZS)
+- Live exchange rates with KES conversion
+- Budget tracking with progress bar
+- Category filtering and pagination
 - 30-day historical trends
 - Responsive mobile-first UI
 
@@ -22,74 +24,101 @@ It helps users:
 
 ## Tech Stack
 
-- React
-- Vite
+**Frontend:**
+- React 19 + Vite
 - Tailwind CSS
 - React Router
-- Frankfurter API
 - Recharts
+- Lucide Icons
 
----
+**Backend:**
+- Flask + SQLAlchemy
+- PostgreSQL
+- Flask-JWT-Extended
+- Flask-Bcrypt
+- Gunicorn
 
-## API Used
-
-Frankfurter API
-
-Endpoints:
-- https://api.frankfurter.app/latest?from=USD&to=KES
-- https://api.frankfurter.app/{date1}..{date2}?from=USD&to=KES
+**APIs:**
+- Open Exchange Rates (live FX)
+- Frankfurter API (historical data)
 
 ---
 
 ## Setup Instructions
 
+### Frontend
+
 ```bash
 git clone https://github.com/kashik09/hustledesk.git
-
 cd hustledesk
-
 npm install
-
 npm run dev
+```
+
+### Backend
+
+```bash
+pip install -r requirements.txt
+flask run
+```
+
+### Environment Variables
+
+**Frontend (.env):**
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+**Backend (.env):**
+```
+DATABASE_URL=postgresql://...
+JWT_SECRET_KEY=your-secret
+FLASK_ENV=development
+CORS_ORIGINS=http://localhost:5173
 ```
 
 ---
 
-## Architecture & Design Decisions
+## API Endpoints
 
-HustleDesk Phase 2 introduces a Flask + PostgreSQL backend, user
-authentication, multi-currency support (East Africa + USD/EUR/GBP),
-and a server-owned rate history system.
-
-For details on currency handling, rate snapshots, and FX methodology,
-see [docs/RATE_METHODOLOGY.md](docs/RATE_METHODOLOGY.md).
-
-## Data Model
-
-Four resources:
-- `User` — auth + home currency + budget
-- `Subscription` — user-owned, multi-currency
-- `RateSnapshot` — global FX history log
-- `SubscriptionTemplate` — public catalog (128 rows, 33 services)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/health` | GET | Health check |
+| `/api/auth/signup` | POST | Create account |
+| `/api/auth/login` | POST | Get JWT token |
+| `/api/auth/me` | GET | Current user profile |
+| `/api/subscriptions` | GET | List subscriptions (paginated) |
+| `/api/subscriptions` | POST | Create subscription |
+| `/api/subscriptions/:id` | PUT | Update subscription |
+| `/api/subscriptions/:id` | DELETE | Delete subscription |
 
 ---
 
-## Challenges
+## Data Models
 
-- Handling async loading states
-- Designing responsive charts
-- Managing shared team workflow using Git branches
-
----
-
-## Known Bugs
-
-- Historical chart may briefly flash during loading
-- Exchange rates depend on API availability
+- **User** — email, password_hash, home_currency, budget_kes
+- **Subscription** — name, amount, currency, billing_cycle, category, user_id
+- **RateSnapshot** — FX history log
+- **SubscriptionTemplate** — public catalog for autocomplete
 
 ---
 
 ## Deployment
 
-Project deployed on Netlify
-](https://hustledeskke.netlify.app/)
+| Service | Platform |
+|---------|----------|
+| Frontend | Vercel |
+| Backend | Render |
+| Database | Render PostgreSQL |
+
+---
+
+## Team
+
+| Member | Role |
+|--------|------|
+| Kashi | Project lead, backend |
+| Elvis | Subscriptions frontend |
+| Farhiya | Catalog templates |
+| Abdala | Trends page |
+| Maggie | API hooks |
