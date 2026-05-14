@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Pencil, Trash2, Check, X } from "lucide-react";
 
 const CATEGORY_META = {
   productivity:  { label: "Productivity",  color: "#4ade80", bg: "rgba(74,222,128,.12)" },
@@ -54,7 +55,7 @@ function SubscriptionRow({ sub, onEdit, onDelete }) {
             title="Edit subscription"
             aria-label={`Edit ${sub.name}`}
           >
-            ✎
+            <Pencil size={16} />
           </button>
 
           {confirmDelete ? (
@@ -64,14 +65,14 @@ function SubscriptionRow({ sub, onEdit, onDelete }) {
                 onClick={() => onDelete(sub.id)}
                 aria-label="Confirm delete"
               >
-                ✓
+                <Check size={16} />
               </button>
               <button
                 className="icon-btn icon-btn--cancel"
                 onClick={() => setConfirmDelete(false)}
                 aria-label="Cancel delete"
               >
-                ✕
+                <X size={16} />
               </button>
             </>
           ) : (
@@ -81,7 +82,7 @@ function SubscriptionRow({ sub, onEdit, onDelete }) {
               title="Delete subscription"
               aria-label={`Delete ${sub.name}`}
             >
-              ⌫
+              <Trash2 size={16} />
             </button>
           )}
         </div>
