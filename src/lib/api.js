@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? "https://hustledesk-api-9qwl.onrender.com/api" : "http://localhost:5000/api");
 
 const TOKEN_KEY = "hd_token";
 const USER_KEY = "hd_user";
