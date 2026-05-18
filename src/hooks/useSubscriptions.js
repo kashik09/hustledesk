@@ -54,7 +54,7 @@ export default function useSubscriptions() {
       const next = prev.map((s) =>
         s.id === id ? { ...s, ...updates } : s
       );
-      saveToStorage(next);
+    saveToStorage(next);
       return next;
     });
   }, [saveToStorage]);

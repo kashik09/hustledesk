@@ -1,9 +1,14 @@
 """WSGI entry point for Render deployment."""
-from server.app import create_app
-from server.extensions import db
+
+from app import create_app
+
+from extensions import db
+
 
 app = create_app()
 
-# Auto-create tables on startup (for free tier without shell access)
+
+# Auto-create tables on startup
 with app.app_context():
+
     db.create_all()
