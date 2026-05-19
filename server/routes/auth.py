@@ -16,6 +16,7 @@ from flask_jwt_extended import (
 from server.extensions import db, limiter
 from server.models import User, Notification
 from server.utils.email import send_welcome_email
+from server.utils.turnstile import verify_turnstile
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -60,10 +61,15 @@ def validate_username(username):
 def signup():
     """
     POST /api/auth/signup
-    Body: { email, password, home_currency?, name? }
+    Body: { email, password, home_currency?, name?, turnstile_token? }
     Returns: { access_token, user }
     """
     data = request.get_json() or {}
+
+    # Verify Turnstile token (if configured)
+    turnstile_token = data.get("turnstile_token")
+    if not verify_turnstile(turnstile_token, request.remote_addr):
+        return jsonify({"error": "Security verification failed. Please try again."}), 400
 
     email = data.get("email", "").strip().lower()
     password = data.get("password", "")
@@ -124,12 +130,17 @@ def signup():
 def login():
     """
     POST /api/auth/login
-    Body: { email, password }
+    Body: { email, password, turnstile_token? }
     Returns: { access_token, user } or 401
 
     Account lockout: 5 failed attempts = 15 minute lock
     """
     data = request.get_json() or {}
+
+    # Verify Turnstile token (if configured)
+    turnstile_token = data.get("turnstile_token")
+    if not verify_turnstile(turnstile_token, request.remote_addr):
+        return jsonify({"error": "Security verification failed. Please try again."}), 400
 
     email = data.get("email", "").strip().lower()
     password = data.get("password", "")
