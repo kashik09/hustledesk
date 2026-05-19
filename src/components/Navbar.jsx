@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -34,8 +35,9 @@ export default function Navbar() {
           {/* Auth section */}
           {isAuthenticated ? (
             <div className="flex items-center gap-4 ml-4 pl-4 border-l border-stone-700">
+              <NotificationBell />
               <span className="text-stone-400 text-xs truncate max-w-[150px]">
-                {user?.email}
+                {user?.name || user?.email?.split("@")[0]}
               </span>
               <button
                 onClick={logout}
