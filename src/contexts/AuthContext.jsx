@@ -40,12 +40,16 @@ export function AuthProvider({ children }) {
     validateToken();
   }, []);
 
-  async function signup(email, password, home_currency = "KES") {
-    const data = await api.post("/auth/signup", {
+  async function signup(email, password, home_currency = "KES", turnstileToken = null) {
+    const payload = {
       email,
       password,
       home_currency,
-    });
+    };
+    if (turnstileToken) {
+      payload.turnstile_token = turnstileToken;
+    }
+    const data = await api.post("/auth/signup", payload);
     setToken(data.access_token);
     setStoredUser(data.user);
     setUser(data.user);
@@ -53,8 +57,12 @@ export function AuthProvider({ children }) {
     return data;
   }
 
-  async function login(email, password) {
-    const data = await api.post("/auth/login", { email, password });
+  async function login(email, password, turnstileToken = null) {
+    const payload = { email, password };
+    if (turnstileToken) {
+      payload.turnstile_token = turnstileToken;
+    }
+    const data = await api.post("/auth/login", payload);
     setToken(data.access_token);
     setStoredUser(data.user);
     setUser(data.user);

@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { useAuth } from "../contexts/AuthContext";
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
 function EyeIcon({ open }) {
   if (open) {
@@ -47,16 +50,28 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState(null);
+  const turnstileRef = useRef(null);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+
+    // Validate turnstile if enabled
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError("Please complete the security check");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(email, password, turnstileToken);
     } catch (err) {
       setError(err.message || "Login failed");
+      // Reset turnstile on error
+      turnstileRef.current?.reset();
+      setTurnstileToken(null);
     } finally {
       setLoading(false);
     }
@@ -128,9 +143,22 @@ export default function Login() {
               </div>
             </div>
 
+            {/* Turnstile CAPTCHA */}
+            {TURNSTILE_SITE_KEY && (
+              <div className="flex justify-center">
+                <Turnstile
+                  ref={turnstileRef}
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={setTurnstileToken}
+                  onError={() => setTurnstileToken(null)}
+                  onExpire={() => setTurnstileToken(null)}
+                />
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (TURNSTILE_SITE_KEY && !turnstileToken)}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Signing in..." : "Sign in"}

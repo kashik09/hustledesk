@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { useAuth } from "../contexts/AuthContext";
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
 const CURRENCIES = [
   { code: "KES", name: "Kenyan Shilling" },
@@ -57,13 +60,24 @@ export default function Signup() {
   const [homeCurrency, setHomeCurrency] = useState("KES");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState(null);
+  const turnstileRef = useRef(null);
 
   function validate() {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return "Please enter a valid email address";
     }
-    if (!password || password.length < 6) {
-      return "Password must be at least 6 characters";
+    if (!password || password.length < 8) {
+      return "Password must be at least 8 characters";
+    }
+    if (!/[A-Z]/.test(password)) {
+      return "Password must contain at least one uppercase letter";
+    }
+    if (!/[a-z]/.test(password)) {
+      return "Password must contain at least one lowercase letter";
+    }
+    if (!/[0-9]/.test(password)) {
+      return "Password must contain at least one digit";
     }
     return null;
   }
@@ -71,6 +85,12 @@ export default function Signup() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+
+    // Validate turnstile if enabled
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError("Please complete the security check");
+      return;
+    }
 
     const validationError = validate();
     if (validationError) {
@@ -81,9 +101,12 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      await signup(email, password, homeCurrency);
+      await signup(email, password, homeCurrency, turnstileToken);
     } catch (err) {
       setError(err.message || "Signup failed");
+      // Reset turnstile on error
+      turnstileRef.current?.reset();
+      setTurnstileToken(null);
     } finally {
       setLoading(false);
     }
@@ -145,7 +168,7 @@ export default function Signup() {
                   minLength={6}
                   autoComplete="new-password"
                   className="w-full px-4 py-3 pr-12 border border-stone-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
-                  placeholder="At least 6 characters"
+                  placeholder="8+ chars, uppercase, lowercase, digit"
                 />
                 <button
                   type="button"
@@ -179,9 +202,22 @@ export default function Signup() {
               </select>
             </div>
 
+            {/* Turnstile CAPTCHA */}
+            {TURNSTILE_SITE_KEY && (
+              <div className="flex justify-center">
+                <Turnstile
+                  ref={turnstileRef}
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={setTurnstileToken}
+                  onError={() => setTurnstileToken(null)}
+                  onExpire={() => setTurnstileToken(null)}
+                />
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (TURNSTILE_SITE_KEY && !turnstileToken)}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Creating account..." : "Create account"}
