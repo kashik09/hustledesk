@@ -17,16 +17,26 @@ def create_app(config_name=None):
     app.config.from_object(config_class())
 
     # Initialize extensions
-    from server.extensions import db, migrate, jwt, cors, bcrypt
+    from server.extensions import db, migrate, jwt, cors, bcrypt, limiter
 
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    limiter.init_app(app)
 
     # Import models so Alembic can detect them
     from server import models  # noqa: F401
     cors.init_app(app, origins=app.config.get("CORS_ORIGINS", ["http://localhost:5173"]))
     bcrypt.init_app(app)
+
+    # Security headers
+    @app.after_request
+    def add_security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
 
     # Health check route
     @app.route("/api/health")
@@ -36,7 +46,11 @@ def create_app(config_name=None):
     # Register blueprints
     from server.routes.auth import auth_bp
     from server.routes.subscriptions import subscriptions_bp
+    from server.routes.notifications import notifications_bp
+    from server.routes.cron import cron_bp
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(subscriptions_bp, url_prefix="/api/subscriptions")
+    app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
+    app.register_blueprint(cron_bp, url_prefix="/api/cron")
 
     return app
