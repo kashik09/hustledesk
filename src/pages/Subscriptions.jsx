@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import SubscriptionForm from "../components/SubscriptionForm";
 import SubscriptionList from "../components/SubscriptionList";
 import useRates from "../hooks/useRates";
@@ -62,6 +62,15 @@ export default function Subscriptions() {
   const [loading, setLoading]     = useState(false);
   const [listError, setListError] = useState(null);
 
+  // search / filter / sort state
+  const [searchInput, setSearchInput] = useState("");   // raw input (instant)
+  const [search, setSearch]           = useState("");   // debounced value sent to API
+  const [currency, setCurrency]       = useState("");   // e.g. "USD"
+  const [cycle, setCycle]             = useState("");   // e.g. "monthly"
+  const [sortBy, setSortBy]           = useState("date");  // name | amount | date
+  const [sortDir, setSortDir]         = useState("desc");  // asc | desc
+  const debounceRef                   = useRef(null);
+
   // form state
   const [showForm, setShowForm]   = useState(false);
   const [editTarget, setEditTarget] = useState(null);   // sub being edited
@@ -104,7 +113,12 @@ export default function Subscriptions() {
     setListError(null);
     try {
       const params = new URLSearchParams({ page, per_page: 10 });
-      if (filter) params.set("category", filter);
+      if (filter)   params.set("category",      filter);
+      if (search)   params.set("q",             search);
+      if (currency) params.set("currency",      currency);
+      if (cycle)    params.set("billing_cycle", cycle);
+      params.set("sort_by",  sortBy);
+      params.set("sort_dir", sortDir);
       const data = await apiFetch(`${API}?${params}`);
       setSubs(data.items);
       setMeta({
@@ -117,11 +131,53 @@ export default function Subscriptions() {
     } finally {
       setLoading(false);
     }
-  }, [page, filter]);
+  }, [page, filter, search, currency, cycle, sortBy, sortDir]);
 
   useEffect(() => {
     fetchSubs();
   }, [fetchSubs]);
+
+  // ── Search debounce ──────────────────────────────────────────────────────
+
+  function handleSearchChange(e) {
+    const val = e.target.value;
+    setSearchInput(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setSearch(val);
+      setPage(1);
+    }, 300);
+  }
+
+  function clearSearch() {
+    setSearchInput("");
+    setSearch("");
+    setPage(1);
+  }
+
+  // ── Filter setters (always reset to page 1) ──────────────────────────────
+
+  function handleCurrencyChange(e) {
+    setCurrency(e.target.value);
+    setPage(1);
+  }
+
+  function handleCycleChange(e) {
+    setCycle(e.target.value);
+    setPage(1);
+  }
+
+  // ── Sort toggle ──────────────────────────────────────────────────────────
+
+  function handleSort(field) {
+    if (sortBy === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(field);
+      setSortDir("asc");
+    }
+    setPage(1);
+  }
 
   // ── Derived totals ───────────────────────────────────────────────────────
 
@@ -212,6 +268,111 @@ export default function Subscriptions() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
+    <>
+      <style>{`
+        .subs-toolbar {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+        .subs-search-wrap {
+          position: relative;
+          flex: 1;
+          min-width: 180px;
+          max-width: 280px;
+        }
+        .subs-search-icon {
+          position: absolute;
+          left: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--text-muted, #9ca3af);
+          pointer-events: none;
+          display: flex;
+        }
+        .subs-search-input {
+          width: 100%;
+          height: 34px;
+          padding: 0 28px 0 32px;
+          border-radius: 8px;
+          border: 1px solid var(--border, #e5e7eb);
+          background: var(--input-bg, #fff);
+          color: var(--text, #111827);
+          font-family: inherit;
+          font-size: 13.5px;
+          outline: none;
+          transition: border-color 150ms;
+        }
+        .subs-search-input::placeholder { color: var(--text-muted, #9ca3af); }
+        .subs-search-input:focus { border-color: var(--accent, #4f6ef7); }
+        .subs-search-clear {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: var(--text-muted, #9ca3af);
+          cursor: pointer;
+          padding: 2px;
+          display: flex;
+          align-items: center;
+          border-radius: 4px;
+          transition: color 150ms;
+        }
+        .subs-search-clear:hover { color: var(--text, #111827); }
+        .subs-select {
+          height: 34px;
+          padding: 0 28px 0 10px;
+          border-radius: 8px;
+          border: 1px solid var(--border, #e5e7eb);
+          background: var(--input-bg, #fff);
+          color: var(--text, #111827);
+          font-family: inherit;
+          font-size: 13px;
+          outline: none;
+          cursor: pointer;
+          appearance: none;
+          -webkit-appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 8px center;
+          transition: border-color 150ms;
+          min-width: 130px;
+        }
+        .subs-select:focus { border-color: var(--accent, #4f6ef7); }
+        .subs-select option { background: var(--input-bg, #fff); }
+        .subs-sort-group {
+          display: flex;
+          gap: 2px;
+          border: 1px solid var(--border, #e5e7eb);
+          border-radius: 8px;
+          padding: 3px;
+          background: var(--input-bg, #fff);
+          margin-left: auto;
+        }
+        .subs-sort-btn {
+          height: 26px;
+          padding: 0 10px;
+          border-radius: 5px;
+          border: none;
+          background: transparent;
+          color: var(--text-muted, #6b7280);
+          font-family: inherit;
+          font-size: 12.5px;
+          font-weight: 500;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: background 150ms, color 150ms;
+        }
+        .subs-sort-btn:hover { color: var(--text, #111827); }
+        .subs-sort-btn.subs-sort-active {
+          background: var(--accent-soft, #eff2fe);
+          color: var(--accent, #4f6ef7);
+        }
+      `}</style>
     <div className="subscriptions-page">
 
       {/* ── Header ── */}
@@ -231,6 +392,70 @@ export default function Subscriptions() {
           <button className="btn btn-primary" onClick={handleAddNew}>
             + Add Subscription
           </button>
+        </div>
+      </div>
+
+      {/* ── Search / filter / sort toolbar ── */}
+      <div className="subs-toolbar">
+        <div className="subs-search-wrap">
+          <span className="subs-search-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </span>
+          <input
+            className="subs-search-input"
+            type="text"
+            placeholder="Search by name…"
+            value={searchInput}
+            onChange={handleSearchChange}
+            aria-label="Search subscriptions by name"
+          />
+          {searchInput && (
+            <button className="subs-search-clear" onClick={clearSearch} aria-label="Clear search">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          )}
+        </div>
+
+        <select
+          className="subs-select"
+          value={currency}
+          onChange={handleCurrencyChange}
+          aria-label="Filter by currency"
+        >
+          <option value="">All currencies</option>
+          {["USD","EUR","GBP","KES","UGX","TZS"].map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+
+        <select
+          className="subs-select"
+          value={cycle}
+          onChange={handleCycleChange}
+          aria-label="Filter by billing cycle"
+        >
+          <option value="">All cycles</option>
+          {["monthly","annual","weekly","daily"].map((c) => (
+            <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+          ))}
+        </select>
+
+        <div className="subs-sort-group" role="group" aria-label="Sort by">
+          {[
+            { key: "name",   label: "Name"   },
+            { key: "amount", label: "Amount" },
+            { key: "date",   label: "Date"   },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              className={`subs-sort-btn${sortBy === key ? " subs-sort-active" : ""}`}
+              onClick={() => handleSort(key)}
+              aria-pressed={sortBy === key}
+            >
+              {label}
+              {sortBy === key ? (sortDir === "asc" ? " ↑" : " ↓") : ""}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -335,5 +560,6 @@ export default function Subscriptions() {
         </div>
       )}
     </div>
+    </>
   );
 }
