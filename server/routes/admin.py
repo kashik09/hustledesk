@@ -4,7 +4,7 @@ from models.user import User
 
 from extensions import db
 
-from utils.admin_required import admin_required
+from admin_required import admin_required
 
 admin_bp = Blueprint(
     "admin",
