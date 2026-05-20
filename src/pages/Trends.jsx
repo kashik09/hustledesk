@@ -1,14 +1,23 @@
-import { useMemo } from "react";
-import useHistoricalRates from "../hooks/useHistoricalRates";
+import { useMemo, useState } from "react";
 import TrendChart from "../components/TrendChart";
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import ErrorMessage from "../components/ErrorMessage";
+import useHistoricalRates from "../hooks/useHistoricalRates";
+
+// currency pairs
+const PAIRS = [
+  { from: "USD", to: "KES", label: "USD / KES", flag: "🇺🇸" },
+  { from: "EUR", to: "KES", label: "EUR / KES", flag: "🇪🇺" },
+  { from: "GBP", to: "KES", label: "GBP / KES", flag: "🇬🇧" },
+  { from: "UGX", to: "KES", label: "UGX / KES", flag: "🇺🇬" },
+  { from: "TZS", to: "KES", label: "TZS / KES", flag: "🇹🇿" },
+];
 
 // ── Verdict config ────────────────────────────────────────────────────────────
 const VERDICT = {
   cheap: {
     emoji: "🟢",
-    label: "Cheap to buy USD",
+    label: "Cheap to buy",
     sub: "Good time to convert or top up your balance.",
     bg: "bg-green-50",
     border: "border-green-200",
@@ -85,13 +94,8 @@ export default function Trends() {
     const latest = points[points.length - 1].rate;
     const key = getVerdict(latest, avg);
 
-    return {
-      chartData: points,
-      average: avg,
-      todayRate: latest,
-      verdictKey: key,
-    };
-  }, [data]);
+    return { chartData: points, average: avg, todayRate: latest, verdictKey: key };
+  }, [data, selectedPair]);
 
   // ── 1. Loading state ────────────────────────────────────────────────────────
   if (loading) {
@@ -138,7 +142,7 @@ export default function Trends() {
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold text-stone-800">
-          30-Day USD/KES Trend
+          30-Day {selectedPair.label} Trend {}
         </h1>
         <p className="text-stone-500 text-sm mt-1">
           Historical exchange rates — last 30 days
@@ -174,12 +178,12 @@ export default function Trends() {
         <StatCard
           label="Today's Rate"
           value={`KES ${todayRate.toFixed(2)}`}
-          sub="per 1 USD"
+          sub={`per 1 ${selectedPair.from}`}
         />
         <StatCard
           label="30-Day Average"
           value={`KES ${average.toFixed(2)}`}
-          sub="per 1 USD"
+          sub={`per 1 ${selectedPair.from}`}
         />
       </div>
 
@@ -206,9 +210,7 @@ function LegendItem({ color, label, dashed = false }) {
 function StatCard({ label, value, sub }) {
   return (
     <div className="bg-white rounded-2xl border border-stone-200 shadow-sm px-5 py-4">
-      <p className="text-xs text-stone-400 uppercase tracking-wide mb-1">
-        {label}
-      </p>
+      <p className="text-xs text-stone-400 uppercase tracking-wide mb-1">{label}</p>
       <p className="text-xl font-bold text-stone-800">{value}</p>
       <p className="text-xs text-stone-400 mt-0.5">{sub}</p>
     </div>

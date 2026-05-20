@@ -15,17 +15,13 @@ import {
  */
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
-    // Find the rate value (not the average line)
-    const ratePayload = payload.find((p) => p.dataKey === "rate");
-    const value = ratePayload?.value ?? payload[0]?.value;
-
     return (
       <div className="bg-white border border-stone-200 rounded-xl px-4 py-3 shadow-lg text-sm">
         <p className="text-stone-500 mb-1">{label}</p>
         <p className="font-semibold text-stone-800">
           1 USD ={" "}
           <span className="text-orange-600">
-            KES {value?.toFixed(2)}
+            KES {payload[0].value.toFixed(2)}
           </span>
         </p>
       </div>
