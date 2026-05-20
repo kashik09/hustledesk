@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import useHistoricalRates from "../hooks/useHistoricalRates";
 import TrendChart from "../components/TrendChart";
-// These shared components are built by Person 5
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import ErrorMessage from "../components/ErrorMessage";
 
@@ -36,16 +35,20 @@ const VERDICT = {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
- * Converts the raw Frankfurter rates object into a sorted chart-friendly array.
- * Frankfurter shape: { rates: { "2024-04-01": { KES: 129.5 }, ... } }
+ * Safely maps the raw Frankfurter rates object to a Recharts-friendly array.
+ * Filters out invalid dates/rates to prevent rendering broken chart nodes.
  */
 function buildChartData(rates, toCurrency = "KES") {
+  if (!rates || typeof rates !== "object") return [];
+
   return Object.entries(rates)
     .map(([date, currencies]) => ({
       date: formatChartDate(date),
       rawDate: date,
-      rate: currencies[toCurrency],
+      // Fallback to 0 if the specific currency is missing for a given day
+      rate: currencies?.[toCurrency] || 0, 
     }))
+    .filter((point) => point.rate > 0) // Remove days with missing/0 rates
     .sort((a, b) => a.rawDate.localeCompare(b.rawDate));
 }
 
@@ -57,6 +60,7 @@ function formatChartDate(iso) {
 
 /** Compute verdict: cheap / expensive / average (±0.5% threshold) */
 function getVerdict(today, average) {
+  if (!today || !average) return "average";
   const diff = ((today - average) / average) * 100;
   if (diff < -0.5) return "cheap";
   if (diff > 0.5) return "expensive";
@@ -66,23 +70,18 @@ function getVerdict(today, average) {
 // ── Page component ────────────────────────────────────────────────────────────
 
 export default function Trends() {
-  // useHistoricalRates built by Person 2 — returns { data, loading, error }
-  // data shape: { rates: { [date]: { KES: number } }, ... }
   const { data, loading, error } = useHistoricalRates("USD", "KES", 30);
 
-  // Derive chart data + stats from raw API response
+  // Derive chart data safely
   const { chartData, average, todayRate, verdictKey } = useMemo(() => {
-    if (!data?.rates) {
-      return { chartData: [], average: 0, todayRate: 0, verdictKey: "average" };
-    }
-
-    const points = buildChartData(data.rates, "KES");
+    const points = buildChartData(data?.rates, "KES");
+    
+    // Explicit empty state fallback to prevent NaN errors in stats
     if (points.length === 0) {
       return { chartData: [], average: 0, todayRate: 0, verdictKey: "average" };
     }
 
-    const avg =
-      points.reduce((sum, p) => sum + p.rate, 0) / points.length;
+    const avg = points.reduce((sum, p) => sum + p.rate, 0) / points.length;
     const latest = points[points.length - 1].rate;
     const key = getVerdict(latest, avg);
 
@@ -94,31 +93,46 @@ export default function Trends() {
     };
   }, [data]);
 
-  const verdict = VERDICT[verdictKey];
-
-  // ── Loading state ──────────────────────────────────────────────────────────
+  // ── 1. Loading state ────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-5">
         <LoadingSkeleton lines={1} height="h-8" className="w-48" />
         <LoadingSkeleton lines={1} height="h-64" />
-        <LoadingSkeleton lines={2} />
+        <div className="grid grid-cols-2 gap-4">
+          <LoadingSkeleton lines={1} height="h-24" />
+          <LoadingSkeleton lines={1} height="h-24" />
+        </div>
       </div>
     );
   }
 
-  // ── Error state ────────────────────────────────────────────────────────────
+  // ── 2. Error state ──────────────────────────────────────────────────────────
   if (error) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-10">
         <ErrorMessage
-          message="Could not load historical rates. Check your connection and try again."
+          message={typeof error === 'string' ? error : "Could not load historical rates. Check your connection and try again."}
         />
       </div>
     );
   }
 
-  // ── Main render ────────────────────────────────────────────────────────────
+  // ── 3. Empty state (No data returned from API) ──────────────────────────────
+  if (chartData.length === 0) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10 text-center">
+        <div className="bg-stone-50 rounded-2xl border border-stone-200 py-12 px-6">
+          <p className="text-xl font-medium text-stone-600 mb-2">No Trend Data Available</p>
+          <p className="text-stone-500 text-sm">We couldn't find any recent exchange rate history for USD to KES.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── 4. Main render (Data verified) ──────────────────────────────────────────
+  const verdict = VERDICT[verdictKey];
+
   return (
     <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       {/* Page header */}
@@ -149,11 +163,7 @@ export default function Trends() {
         {/* Legend */}
         <div className="flex items-center gap-5 mb-4 px-1">
           <LegendItem color="bg-orange-600" label="USD/KES rate" />
-          <LegendItem
-            color="bg-orange-300"
-            label="30-day avg"
-            dashed
-          />
+          <LegendItem color="bg-orange-300" label="30-day avg" dashed />
         </div>
 
         <TrendChart chartData={chartData} average={average} />
