@@ -10,7 +10,7 @@ from flask import Blueprint, request, jsonify
 from sqlalchemy import func
 from server.extensions import db
 from server.models import User, Subscription, Notification
-from server.utils.email import send_renewal_reminder, send_weekly_summary
+#from server.utils.email import send_renewal_reminder, send_weekly_summary
 
 cron_bp = Blueprint("cron", __name__)
 
@@ -51,14 +51,14 @@ def send_renewal_reminders():
             continue
 
         # Send email
-        send_renewal_reminder(
+        #send_renewal_reminder(
             to_email=user.email,
             name=user.name,
             subscription_name=sub.name,
             renewal_date=target_date.strftime("%B %d, %Y"),
             amount=float(sub.amount),
             currency=sub.currency
-        )
+       # )
         sent_count += 1
 
         # Create in-app notification
@@ -115,14 +115,14 @@ def send_weekly_summaries():
         top_categories = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
 
         # Send email
-        send_weekly_summary(
-            to_email=user.email,
-            name=user.name,
-            total_kes=total_kes,
-            subscription_count=len(subscriptions),
-            top_categories=top_categories
-        )
-        sent_count += 1
+        # send_weekly_summary(
+        to_email=user.email,
+           #name=user.name,
+           ## total_kes=total_kes,
+            #subscription_count=len(subscriptions),
+            #top_categories=top_categories
+         #)
+        #sent_count += 1
 
     return jsonify({
         "message": f"Sent {sent_count} weekly summaries",

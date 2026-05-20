@@ -1,43 +1,95 @@
-"""
-SubscriptionTemplate — public catalog of known sub prices.
-
-NOT user-owned. Seeds 128 rows across 33 services in 6 countries
-(KE, UG, TZ, RW, US, GB). Powers autocomplete on the sub creation
-form so users don't type wrong amounts.
-
-Answers teacher Q1 ('What if sub is in KSH?').
-See docs/RATE_METHODOLOGY.md.
-"""
 from datetime import datetime
+
 from server.extensions import db
 
 
 class SubscriptionTemplate(db.Model):
+
     __tablename__ = "subscription_templates"
 
-    id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(40), nullable=False, index=True)
-    service_name = db.Column(db.String(80), nullable=False, index=True)
-    country_code = db.Column(db.String(2), nullable=False, index=True)
-    plan_name = db.Column(db.String(80), nullable=False)
-    amount = db.Column(db.Numeric(12, 2), nullable=False)
-    currency = db.Column(db.String(3), nullable=False)
-    billing_cycle = db.Column(db.String(20), nullable=False, default="monthly")
-    source_url = db.Column(db.String(255), nullable=True)
-    last_verified_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    category = db.Column(
+        db.String(40),
+        nullable=False,
+        index=True
+    )
+
+    service_name = db.Column(
+        db.String(80),
+        nullable=False,
+        index=True
+    )
+
+    country_code = db.Column(
+        db.String(2),
+        nullable=False,
+        index=True
+    )
+
+    plan_name = db.Column(
+        db.String(80),
+        nullable=False
+    )
+
+    amount = db.Column(
+        db.Numeric(12, 2),
+        nullable=False
+    )
+
+    currency = db.Column(
+        db.String(3),
+        nullable=False
+    )
+
+    billing_cycle = db.Column(
+        db.String(20),
+        nullable=False,
+        default="monthly"
+    )
+
+    pricing_tiers = db.Column(
+        db.JSON,
+        nullable=True
+    )
+
+    per_seat_pricing = db.Column(
+        db.Boolean,
+        default=False
+    )
+
+    source_url = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
+    last_verified_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow
+    )
 
     __table_args__ = (
+
         db.UniqueConstraint(
-            "service_name", "country_code", "plan_name",
+            "service_name",
+            "country_code",
+            "plan_name",
             name="uq_template_service_country_plan"
         ),
+
         db.Index(
             "ix_template_service_country",
-            "service_name", "country_code"
+            "service_name",
+            "country_code"
         ),
     )
 
     def to_dict(self):
+
         return {
             "id": self.id,
             "category": self.category,
@@ -47,11 +99,20 @@ class SubscriptionTemplate(db.Model):
             "amount": float(self.amount),
             "currency": self.currency,
             "billing_cycle": self.billing_cycle,
+            "pricing_tiers": self.pricing_tiers,
+            "per_seat_pricing": self.per_seat_pricing,
             "source_url": self.source_url,
             "last_verified_at": (
-                self.last_verified_at.isoformat() if self.last_verified_at else None
+                self.last_verified_at.isoformat()
+                if self.last_verified_at
+                else None
             ),
         }
 
     def __repr__(self):
-        return f"<SubscriptionTemplate {self.service_name} ({self.country_code})>"
+
+        return (
+            f"<SubscriptionTemplate "
+            f"{self.service_name} "
+            f"({self.country_code})>"
+        )

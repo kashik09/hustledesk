@@ -15,7 +15,7 @@ from flask_jwt_extended import (
 )
 from server.extensions import db, limiter
 from server.models import User, Notification
-from server.utils.email import send_welcome_email
+#from server.utils.email import send_welcome_email
 from server.utils.turnstile import verify_turnstile
 
 auth_bp = Blueprint("auth", __name__)
@@ -101,10 +101,10 @@ def signup():
     db.session.commit()
 
     # Send welcome email (non-blocking)
-    try:
-        send_welcome_email(email, name)
-    except Exception as e:
-        print(f"[SIGNUP] Welcome email failed: {e}")
+   # try:
+        #send_welcome_email(email, name)
+    #except Exception as e:
+       # print(f"[SIGNUP] Welcome email failed: {e}")
 
     # Create welcome notification
     welcome_notification = Notification(
