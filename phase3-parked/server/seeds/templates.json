@@ -1,0 +1,18 @@
+[
+    {
+      "service_name": "Netflix",
+      "plan_name": "Premium",
+      "country": "KE",
+      "currency": "KES",
+      "amount": 1100,
+      "category": "entertainment"
+    },
+    {
+      "service_name": "Spotify",
+      "plan_name": "Family",
+      "country": "UG",
+      "currency": "UGX",
+      "amount": 15000,
+      "category": "entertainment"
+    }
+  ]
