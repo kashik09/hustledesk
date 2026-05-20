@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 import Dashboard from "./pages/Dashboard";
 import Subscriptions from "./pages/Subscriptions";
 import Trends from "./pages/Trends";
+import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
@@ -59,6 +60,14 @@ function App() {
             element={
               <AppLayout>
                 <Trends />
+              </AppLayout>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <AppLayout>
+                <Settings />
               </AppLayout>
             }
           />

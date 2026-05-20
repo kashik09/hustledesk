@@ -36,9 +36,12 @@ export default function Navbar() {
           {isAuthenticated ? (
             <div className="flex items-center gap-4 ml-4 pl-4 border-l border-stone-700">
               <NotificationBell />
-              <span className="text-stone-400 text-xs truncate max-w-[150px]">
+              <NavLink
+                to="/settings"
+                className="text-stone-400 hover:text-white text-xs truncate max-w-[150px] transition-colors"
+              >
                 {user?.name || user?.email?.split("@")[0]}
-              </span>
+              </NavLink>
               <button
                 onClick={logout}
                 className="text-stone-400 hover:text-white transition-colors text-sm"
@@ -98,12 +101,19 @@ export default function Navbar() {
               <p className="text-stone-400 text-xs truncate mb-2">
                 {user?.email}
               </p>
+              <NavLink
+                to="/settings"
+                className={mobileLinkClass}
+                onClick={() => setOpen(false)}
+              >
+                Settings
+              </NavLink>
               <button
                 onClick={() => {
                   setOpen(false);
                   logout();
                 }}
-                className="text-stone-300 hover:text-white transition-colors"
+                className="block py-2 text-stone-300 hover:text-white transition-colors"
               >
                 Logout
               </button>
