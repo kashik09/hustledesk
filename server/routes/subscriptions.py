@@ -5,6 +5,7 @@ All endpoints require JWT authentication. Subscriptions are scoped
 to the authenticated user — no cross-user access allowed.
 """
 from flask import Blueprint, request, jsonify
+from sqlalchemy import asc, desc
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from server.extensions import db
 from server.models import Subscription
@@ -88,17 +89,33 @@ def validate_subscription_data(data, partial=False):
     return errors, cleaned
 
 
+# Sort column map — maps the sort_by param value to a model column
+_SORT_COLUMNS = {
+    "name":   lambda: Subscription.name,
+    "amount": lambda: Subscription.amount,
+    "date":   lambda: Subscription.created_at,
+}
+
+
 @subscriptions_bp.route("", methods=["GET"])
 @jwt_required()
 def list_subscriptions():
     """
     GET /api/subscriptions
-    Query params: page (default 1), per_page (default 20, max 100)
-    Returns paginated list of current user's subscriptions.
+    Query params:
+      page         int     – page number (default 1)
+      per_page     int     – page size (default 20, max 100)
+      q            str     – case-insensitive name search
+      currency     str     – exact currency code filter (USD, EUR, …)
+      billing_cycle str    – exact billing cycle filter (monthly, annual, …)
+      category     str     – exact category filter
+      sort_by      str     – name | amount | date  (default: date)
+      sort_dir     str     – asc | desc            (default: desc)
+    Returns paginated list of the current user's subscriptions.
     """
     user_id = int(get_jwt_identity())
 
-    # Parse pagination params
+    # ── Pagination ────────────────────────────────────────────────────────
     try:
         page = max(1, int(request.args.get("page", 1)))
     except (TypeError, ValueError):
@@ -109,12 +126,39 @@ def list_subscriptions():
     except (TypeError, ValueError):
         per_page = 20
 
-    # Query user's subscriptions with pagination
-    pagination = (
-        Subscription.query.filter_by(user_id=user_id)
-        .order_by(Subscription.created_at.desc())
-        .paginate(page=page, per_page=per_page, error_out=False)
-    )
+    # ── Build query ───────────────────────────────────────────────────────
+    query = Subscription.query.filter_by(user_id=user_id)
+
+    # Search by name (case-insensitive substring)
+    q = request.args.get("q", "").strip()
+    if q:
+        query = query.filter(Subscription.name.ilike(f"%{q}%"))
+
+    # Filter by currency (exact, case-insensitive)
+    currency = request.args.get("currency", "").strip().upper()
+    if currency and currency in VALID_CURRENCIES:
+        query = query.filter(Subscription.currency == currency)
+
+    # Filter by billing cycle (exact)
+    billing_cycle = request.args.get("billing_cycle", "").strip().lower()
+    if billing_cycle and billing_cycle in VALID_BILLING_CYCLES:
+        query = query.filter(Subscription.billing_cycle == billing_cycle)
+
+    # Filter by category (exact) — fixes frontend param that was previously ignored
+    category = request.args.get("category", "").strip().lower()
+    if category and category in VALID_CATEGORIES:
+        query = query.filter(Subscription.category == category)
+
+    # ── Sorting ───────────────────────────────────────────────────────────
+    sort_by  = request.args.get("sort_by",  "date").strip().lower()
+    sort_dir = request.args.get("sort_dir", "desc").strip().lower()
+
+    col_fn = _SORT_COLUMNS.get(sort_by, _SORT_COLUMNS["date"])
+    order_fn = asc if sort_dir == "asc" else desc
+    query = query.order_by(order_fn(col_fn()))
+
+    # ── Paginate and return ───────────────────────────────────────────────
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
 
     return jsonify({
         "items": [sub.to_dict() for sub in pagination.items],
