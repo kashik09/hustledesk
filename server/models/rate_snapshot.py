@@ -1,79 +1,52 @@
-from server.extensions import db
+"""
+RateSnapshot — global FX history log.
 
+NOT user-owned. One row per (from_currency, to_currency, captured_at)
+triple — shared across all users for efficiency. Replaces the Phase 1
+pseudo-random historical data with real accumulated snapshots.
+
+Cross-rate math: convert(UGX, KES) = rate_USD_KES / rate_USD_UGX
+(USD-pegged pivot).
+
+Answers teacher Q2 ('What about rate fluctuation?').
+See docs/RATE_METHODOLOGY.md.
+"""
 from datetime import datetime
+from server.extensions import db
 
 
 class RateSnapshot(db.Model):
-    """
-    Global FX rate log. One row per currency pair per day.
-
-    Snapshot fetch policy (enforced in rate_fetcher.py):
-      - Every request to GET /api/rates/latest writes today's
-        snapshot if one doesn't already exist for that pair.
-      - This means the table self-populates as users visit the app —
-        no cron job needed for Phase 2.
-
-    Example row:
-      from_currency = "USD"
-      to_currency   = "KES"
-      rate          = 132.45
-      captured_at   = 2024-04-30 14:22:00
-    """
-
     __tablename__ = "rate_snapshots"
 
-    # ── Columns 
-    id            = db.Column(db.Integer, primary_key=True)
-
-    from_currency = db.Column(db.String(3), nullable=False)
-    # e.g. "USD", "EUR", "GBP", "UGX", "TZS"
-    # KES is always the to_currency for this app — but stored
-    # explicitly so the table stays flexible for Phase 3.
-
-    to_currency   = db.Column(db.String(3), nullable=False)
-    # e.g. "KES"
-
-    rate          = db.Column(db.Float, nullable=False)
-    # mid-market rate: 1 unit of from_currency = rate units of to_currency
-
-    source        = db.Column(db.String(64), nullable=True)
-    # e.g. "open.er-api.com" or "exchangerate.host"
-    # shown on RateCard as provenance tooltip
-
-    captured_at   = db.Column(
-        db.DateTime,
-        nullable=False,
-        default=datetime.utcnow
+    id = db.Column(db.Integer, primary_key=True)
+    from_currency = db.Column(db.String(3), nullable=False, index=True)
+    to_currency = db.Column(db.String(3), nullable=False, index=True)
+    rate = db.Column(db.Numeric(18, 8), nullable=False)
+    source = db.Column(db.String(50), nullable=False, default="open.er-api.com")
+    captured_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow, index=True
     )
-    # stored as UTC — format for display in rate_fetcher.py
 
-    # ── Unique constraint ─────────────────────────────────────
-    # Only one snapshot per pair per day.
-    # rate_fetcher checks this before writing a new row.
     __table_args__ = (
         db.UniqueConstraint(
-            "from_currency",
-            "to_currency",
-            db.func.date("captured_at"),
-            name="uq_rate_snapshot_pair_day",
+            "from_currency", "to_currency", "captured_at",
+            name="uq_rate_snapshot_pair_time"
+        ),
+        db.Index(
+            "ix_rate_snapshot_pair_time",
+            "from_currency", "to_currency", "captured_at"
         ),
     )
 
-    # ── Methods
-
     def to_dict(self):
-        """Serialise to JSON-safe dict for API responses."""
         return {
-            "id":            self.id,
+            "id": self.id,
             "from_currency": self.from_currency,
-            "to_currency":   self.to_currency,
-            "rate":          self.rate,
-            "source":        self.source,
-            "captured_at":   self.captured_at.isoformat(),
+            "to_currency": self.to_currency,
+            "rate": float(self.rate),
+            "source": self.source,
+            "captured_at": self.captured_at.isoformat() if self.captured_at else None,
         }
 
     def __repr__(self):
-        return (
-            f"<RateSnapshot {self.from_currency}/{self.to_currency} "
-            f"@ {self.rate} on {self.captured_at.date()}>"
-        )
+        return f"<RateSnapshot {self.from_currency}/{self.to_currency} @ {self.rate}>"
