@@ -82,12 +82,18 @@ export function AuthProvider({ children }) {
     navigate("/login");
   }
 
+  function updateUser(updatedUser) {
+    setUser(updatedUser);
+    setStoredUser(updatedUser);
+  }
+
   const value = {
     user,
     loading,
     signup,
     login,
     logout,
+    updateUser,
     isAuthenticated: !!user,
   };
 
