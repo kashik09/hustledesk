@@ -1,9 +1,14 @@
-const API_URL = import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD ? "https://hustledesk-api-9qwl.onrender.com/api" : "http://localhost:5000/api");
+// Production URL - hardcoded as primary, env var as override
+const PROD_API_URL = "https://hustledesk-api-9qwl.onrender.com/api";
+const DEV_API_URL = "http://localhost:5000/api";
 
-// Debug: Log configured API URL at startup (visible in browser console)
+const API_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? DEV_API_URL : PROD_API_URL);
+
+// Debug: Log configured API URL at startup
 if (typeof window !== "undefined") {
-  console.log("[API] Configured URL:", API_URL);
+  console.log("[API] Mode:", import.meta.env.MODE);
+  console.log("[API] URL:", API_URL);
 }
 
 const TOKEN_KEY = "hd_token";
