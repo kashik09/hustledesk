@@ -38,7 +38,8 @@ def create_app(config_name=None):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         return response
 
-    # Health check route
+    # Health check routes
+    @app.route("/")
     @app.route("/api/health")
     def health_check():
         return jsonify({"status": "ok", "service": "hustledesk-api"})
