@@ -49,9 +49,11 @@ def create_app(config_name=None):
     from server.routes.subscriptions import subscriptions_bp
     from server.routes.notifications import notifications_bp
     from server.routes.cron import cron_bp
+    from server.routes.rates import rates_bp
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(subscriptions_bp, url_prefix="/api/subscriptions")
     app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
     app.register_blueprint(cron_bp, url_prefix="/api/cron")
+    app.register_blueprint(rates_bp, url_prefix="/api")
 
     return app
