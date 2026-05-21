@@ -79,11 +79,12 @@ function getVerdict(today, average) {
 // ── Page component ────────────────────────────────────────────────────────────
 
 export default function Trends() {
-  const { data, loading, error } = useHistoricalRates("USD", "KES", 30);
+  const [selectedPair, setSelectedPair] = useState(PAIRS[0]);
+  const { data, loading, error } = useHistoricalRates(selectedPair.from, selectedPair.to, 30);
 
   // Derive chart data safely
   const { chartData, average, todayRate, verdictKey } = useMemo(() => {
-    const points = buildChartData(data?.rates, "KES");
+    const points = buildChartData(data?.rates, selectedPair.to);
     
     // Explicit empty state fallback to prevent NaN errors in stats
     if (points.length === 0) {
