@@ -17,7 +17,7 @@ export default function Dashboard() {
     async function fetchSubs() {
       try {
         const data = await api.get("/subscriptions?per_page=100");
-        setSubscriptions(data.subscriptions || []);
+        setSubscriptions(data.items || []);
       } catch (err) {
         console.error("Failed to fetch subscriptions:", err);
         setSubscriptions([]);
