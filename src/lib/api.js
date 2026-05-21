@@ -1,6 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? "https://hustledesk-api-9qwl.onrender.com/api" : "http://localhost:5000/api");
 
+// Debug: Log configured API URL at startup (visible in browser console)
+if (typeof window !== "undefined") {
+  console.log("[API] Configured URL:", API_URL);
+}
+
 const TOKEN_KEY = "hd_token";
 const USER_KEY = "hd_user";
 
@@ -60,17 +65,28 @@ async function request(method, path, body = null) {
     config.body = JSON.stringify(body);
   }
 
-  const response = await fetch(`${API_URL}${path}`, config);
-  const data = await response.json().catch(() => ({}));
+  const url = `${API_URL}${path}`;
 
-  if (!response.ok) {
-    throw new ApiError(
-      response.status,
-      data.error || data.msg || "Request failed"
-    );
+  try {
+    const response = await fetch(url, config);
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new ApiError(
+        response.status,
+        data.error || data.msg || "Request failed"
+      );
+    }
+
+    return data;
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw err;
+    }
+    // Network error - provide more context
+    console.error(`[API] Request failed: ${method} ${url}`, err);
+    throw new ApiError(0, `Network error: Unable to reach server. Please check your connection.`);
   }
-
-  return data;
 }
 
 export const api = {
