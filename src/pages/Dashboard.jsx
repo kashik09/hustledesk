@@ -61,11 +61,11 @@ export default function Dashboard() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <RateCard rate={rate} loading={rateLoading} error={rateError} />
+        <RateCard rate={kesRate} loading={rateLoading} error={rateError} />
         {rateLoading ? (
           <LoadingSkeleton />
         ) : (
-          <PurchasingPowerCard rate={rate || 0} />
+          <PurchasingPowerCard rate={kesRate || 0} />
         )}
       </div>
 
