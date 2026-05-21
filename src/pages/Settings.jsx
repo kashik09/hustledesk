@@ -40,6 +40,7 @@ export default function Settings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
@@ -278,14 +279,30 @@ export default function Settings() {
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-stone-700 mb-1.5">
               Confirm New Password
             </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
-            />
+            <div className="relative">
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition ${
+                  confirmPassword && newPassword && confirmPassword !== newPassword
+                    ? "border-red-400 bg-red-50"
+                    : "border-stone-300"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors p-1"
+              >
+                <EyeIcon open={showConfirmPassword} />
+              </button>
+            </div>
+            {confirmPassword && newPassword && confirmPassword !== newPassword && (
+              <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+            )}
           </div>
 
           <button
