@@ -26,7 +26,13 @@ def create_app(config_name=None):
 
     # Import models so Alembic can detect them
     from server import models  # noqa: F401
-    cors.init_app(app, origins=app.config.get("CORS_ORIGINS", ["http://localhost:5173"]))
+    cors.init_app(
+        app,
+        origins=app.config.get("CORS_ORIGINS", ["http://localhost:5173"]),
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    )
     bcrypt.init_app(app)
 
     # Security headers
