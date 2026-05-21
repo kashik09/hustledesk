@@ -1,27 +1,55 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useRates from "../hooks/useRates";
-import useSubscriptions from "../hooks/useSubscriptions"; 
 import RateCard from "../components/RateCard";
 import PurchasingPowerCard from "../components/PurchasingPowerCard";
 import LoadingSkeleton from "../components/LoadingSkeleton";
+import api from "../lib/api";
 
 export default function Dashboard() {
-  const { data: rateData, loading: rateLoading, error: rateError } = useRates();
-  const rate = rateData?.rates?.KES;
+  const { data: rateData, loading: rateLoading, error: rateError, rates } = useRates();
+  const kesRate = rateData?.rates?.KES;
 
-  const { subscriptions, loading: subsLoading } = useSubscriptions();
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [subsLoading, setSubsLoading] = useState(true);
 
-  const { totalUsd, totalKes } = useMemo(() => {
-    if (!subscriptions || subscriptions.length === 0) {
-      return { totalUsd: 0, totalKes: 0 };
+  useEffect(() => {
+    async function fetchSubs() {
+      try {
+        const data = await api.get("/subscriptions?per_page=100");
+        setSubscriptions(data.subscriptions || []);
+      } catch (err) {
+        console.error("Failed to fetch subscriptions:", err);
+        setSubscriptions([]);
+      } finally {
+        setSubsLoading(false);
+      }
+    }
+    fetchSubs();
+  }, []);
+
+  const { totalKes, subCount } = useMemo(() => {
+    if (!subscriptions || subscriptions.length === 0 || !rates) {
+      return { totalKes: 0, subCount: 0 };
     }
 
-    const usdSum = subscriptions.reduce((sum, sub) => sum + (Number(sub.price) || 0), 0);
-    const kesSum = usdSum * (rate || 0);
+    // Convert each subscription to KES based on its currency
+    const kesSum = subscriptions.reduce((sum, sub) => {
+      const amount = Number(sub.amount) || 0;
+      const currency = sub.currency || "USD";
 
-    return { totalUsd: usdSum, totalKes: kesSum };
-  }, [subscriptions, rate]);
+      if (currency === "KES") {
+        return sum + amount;
+      }
+
+      // Convert to KES: amount * (KES rate / currency rate)
+      const currencyRate = rates[currency] || 1;
+      const amountInKes = amount * (kesRate / currencyRate);
+      return sum + amountInKes;
+    }, 0);
+
+    return { totalKes: kesSum, subCount: subscriptions.length };
+  }, [subscriptions, rates, kesRate]);
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8">
@@ -51,19 +79,15 @@ export default function Dashboard() {
 
         {subsLoading || rateLoading ? (
           <LoadingSkeleton lines={2} />
-        ) : subscriptions?.length > 0 ? (
+        ) : subCount > 0 ? (
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-12 items-start sm:items-center">
             <div>
-              <p className="text-sm text-stone-500 uppercase tracking-wide mb-1">Total USD</p>
-              <p className="text-3xl font-bold text-stone-800">${totalUsd.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-stone-500 uppercase tracking-wide mb-1">Total KES</p>
-              <p className="text-3xl font-bold text-orange-600">KES {totalKes.toFixed(2)}</p>
+              <p className="text-sm text-stone-500 uppercase tracking-wide mb-1">Monthly Total</p>
+              <p className="text-3xl font-bold text-orange-600">KES {totalKes.toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
             <div className="sm:ml-auto">
               <span className="inline-flex items-center justify-center px-3 py-1 bg-stone-100 text-stone-600 text-sm font-medium rounded-full border border-stone-200">
-                {subscriptions.length} Active {subscriptions.length === 1 ? 'Sub' : 'Subs'}
+                {subCount} Active {subCount === 1 ? 'Sub' : 'Subs'}
               </span>
             </div>
           </div>
