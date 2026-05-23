@@ -23,6 +23,7 @@ class Subscription(db.Model):
     currency = db.Column(db.String(3), nullable=False)
     billing_cycle = db.Column(db.String(20), nullable=False, default="monthly")
     category = db.Column(db.String(40), nullable=False, default="other")
+    seats = db.Column(db.Integer, default=1)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
@@ -37,6 +38,7 @@ class Subscription(db.Model):
             "currency": self.currency,
             "billing_cycle": self.billing_cycle,
             "category": self.category,
+            "seats": self.seats or 1,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
