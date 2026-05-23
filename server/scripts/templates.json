@@ -1,0 +1,288 @@
+[
+  {
+    "service_name": "Netflix",
+    "country_code": "KE",
+    "category": "entertainment",
+    "plan_name": "Mobile",
+    "amount": 300,
+    "currency": "KES",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Mobile", "price": 300},
+      {"name": "Basic", "price": 700},
+      {"name": "Standard", "price": 1100},
+      {"name": "Premium", "price": 1450}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "Netflix",
+    "country_code": "US",
+    "category": "entertainment",
+    "plan_name": "Standard with ads",
+    "amount": 6.99,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Standard with ads", "price": 6.99},
+      {"name": "Standard", "price": 15.49},
+      {"name": "Premium", "price": 22.99}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "Spotify",
+    "country_code": "KE",
+    "category": "entertainment",
+    "plan_name": "Individual",
+    "amount": 299,
+    "currency": "KES",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Individual", "price": 299},
+      {"name": "Duo", "price": 389},
+      {"name": "Family", "price": 479}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "Spotify",
+    "country_code": "US",
+    "category": "entertainment",
+    "plan_name": "Individual",
+    "amount": 11.99,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Individual", "price": 11.99},
+      {"name": "Duo", "price": 16.99},
+      {"name": "Family", "price": 19.99}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "ChatGPT Plus",
+    "country_code": "US",
+    "category": "productivity",
+    "plan_name": "Plus",
+    "amount": 20,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Plus", "price": 20},
+      {"name": "Pro", "price": 200}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "GitHub",
+    "country_code": "US",
+    "category": "dev_tools",
+    "plan_name": "Pro",
+    "amount": 4,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Pro", "price": 4},
+      {"name": "Team", "price": 4}
+    ],
+    "per_seat_pricing": true
+  },
+  {
+    "service_name": "Slack",
+    "country_code": "US",
+    "category": "productivity",
+    "plan_name": "Pro",
+    "amount": 8.75,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Pro", "price": 8.75},
+      {"name": "Business+", "price": 15}
+    ],
+    "per_seat_pricing": true
+  },
+  {
+    "service_name": "Notion",
+    "country_code": "US",
+    "category": "productivity",
+    "plan_name": "Plus",
+    "amount": 10,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Plus", "price": 10},
+      {"name": "Business", "price": 18}
+    ],
+    "per_seat_pricing": true
+  },
+  {
+    "service_name": "Canva",
+    "country_code": "US",
+    "category": "productivity",
+    "plan_name": "Pro",
+    "amount": 14.99,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Pro", "price": 14.99},
+      {"name": "Teams", "price": 10}
+    ],
+    "per_seat_pricing": true
+  },
+  {
+    "service_name": "Adobe Creative Cloud",
+    "country_code": "US",
+    "category": "productivity",
+    "plan_name": "All Apps",
+    "amount": 59.99,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Photography", "price": 9.99},
+      {"name": "Single App", "price": 22.99},
+      {"name": "All Apps", "price": 59.99}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "Figma",
+    "country_code": "US",
+    "category": "dev_tools",
+    "plan_name": "Professional",
+    "amount": 15,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Professional", "price": 15},
+      {"name": "Organization", "price": 45}
+    ],
+    "per_seat_pricing": true
+  },
+  {
+    "service_name": "Zoom",
+    "country_code": "US",
+    "category": "productivity",
+    "plan_name": "Pro",
+    "amount": 15.99,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Pro", "price": 15.99},
+      {"name": "Business", "price": 21.99}
+    ],
+    "per_seat_pricing": true
+  },
+  {
+    "service_name": "Google Workspace",
+    "country_code": "US",
+    "category": "productivity",
+    "plan_name": "Business Starter",
+    "amount": 7.20,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Business Starter", "price": 7.20},
+      {"name": "Business Standard", "price": 14.40},
+      {"name": "Business Plus", "price": 21.60}
+    ],
+    "per_seat_pricing": true
+  },
+  {
+    "service_name": "Microsoft 365",
+    "country_code": "US",
+    "category": "productivity",
+    "plan_name": "Personal",
+    "amount": 6.99,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Personal", "price": 6.99},
+      {"name": "Family", "price": 9.99},
+      {"name": "Business Basic", "price": 6}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "AWS",
+    "country_code": "US",
+    "category": "dev_tools",
+    "plan_name": "Pay as you go",
+    "amount": 0,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": null,
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "Vercel",
+    "country_code": "US",
+    "category": "dev_tools",
+    "plan_name": "Pro",
+    "amount": 20,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Pro", "price": 20},
+      {"name": "Enterprise", "price": 0}
+    ],
+    "per_seat_pricing": true
+  },
+  {
+    "service_name": "Showmax",
+    "country_code": "KE",
+    "category": "entertainment",
+    "plan_name": "Mobile",
+    "amount": 300,
+    "currency": "KES",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Mobile", "price": 300},
+      {"name": "Standard", "price": 760},
+      {"name": "Premier League", "price": 1650}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "YouTube Premium",
+    "country_code": "KE",
+    "category": "entertainment",
+    "plan_name": "Individual",
+    "amount": 189,
+    "currency": "KES",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Individual", "price": 189},
+      {"name": "Family", "price": 289}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "YouTube Premium",
+    "country_code": "US",
+    "category": "entertainment",
+    "plan_name": "Individual",
+    "amount": 13.99,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Individual", "price": 13.99},
+      {"name": "Family", "price": 22.99}
+    ],
+    "per_seat_pricing": false
+  },
+  {
+    "service_name": "Linear",
+    "country_code": "US",
+    "category": "dev_tools",
+    "plan_name": "Standard",
+    "amount": 8,
+    "currency": "USD",
+    "billing_cycle": "monthly",
+    "pricing_tiers": [
+      {"name": "Standard", "price": 8},
+      {"name": "Plus", "price": 14}
+    ],
+    "per_seat_pricing": true
+  }
+]
