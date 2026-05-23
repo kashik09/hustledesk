@@ -23,6 +23,8 @@ class SubscriptionTemplate(db.Model):
     amount = db.Column(db.Numeric(12, 2), nullable=False)
     currency = db.Column(db.String(3), nullable=False)
     billing_cycle = db.Column(db.String(20), nullable=False, default="monthly")
+    pricing_tiers = db.Column(db.JSON, nullable=True)
+    per_seat_pricing = db.Column(db.Boolean, default=False)
     source_url = db.Column(db.String(255), nullable=True)
     last_verified_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
@@ -47,6 +49,8 @@ class SubscriptionTemplate(db.Model):
             "amount": float(self.amount),
             "currency": self.currency,
             "billing_cycle": self.billing_cycle,
+            "pricing_tiers": self.pricing_tiers,
+            "per_seat_pricing": self.per_seat_pricing,
             "source_url": self.source_url,
             "last_verified_at": (
                 self.last_verified_at.isoformat() if self.last_verified_at else None
