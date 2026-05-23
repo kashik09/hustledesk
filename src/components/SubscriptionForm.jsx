@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import TemplateAutocomplete from "./TemplateAutocomplete";
+import PricingTierSelector from "./PricingTierSelector";
+import SeatsInput from "./SeatsInput";
 
 const CATEGORIES = [
   { value: "productivity",  label: "Productivity" },
@@ -60,13 +63,44 @@ export default function SubscriptionForm({
   const [fields, setFields] = useState(() => toForm(initial));
   const [touched, setTouched] = useState({});
   const [localErrors, setLocalErrors] = useState({});
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedTier, setSelectedTier] = useState(null);
+  const [seats, setSeats] = useState(initial?.seats || 1);
 
   // Sync when parent swaps the edit target
   useEffect(() => {
     setFields(toForm(initial));
     setTouched({});
     setLocalErrors({});
+    setSelectedTemplate(null);
+    setSelectedTier(null);
+    setSeats(initial?.seats || 1);
   }, [initial?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Template selection ────────────────────────────────────────────────────
+
+  function handleTemplateSelect(template) {
+    setSelectedTemplate(template);
+    setSelectedTier(null);
+    setSeats(1);
+    setFields({
+      name: template.service_name,
+      amount: String(template.amount),
+      currency: template.currency,
+      billing_cycle: template.billing_cycle || "monthly",
+      category: template.category || "other",
+    });
+    setTouched({});
+    setLocalErrors({});
+  }
+
+  function handleTierSelect(tier) {
+    setSelectedTier(tier);
+    setFields((f) => ({
+      ...f,
+      amount: String(tier.price || tier.amount),
+    }));
+  }
 
   // ── Field change ──────────────────────────────────────────────────────────
 
@@ -104,6 +138,7 @@ export default function SubscriptionForm({
       currency:      fields.currency,
       billing_cycle: fields.billing_cycle,
       category:      fields.category,
+      seats:         selectedTemplate?.per_seat_pricing ? seats : 1,
     });
   }
 
@@ -133,6 +168,37 @@ export default function SubscriptionForm({
       )}
 
       <form onSubmit={handleSubmit} noValidate>
+        {/* Template autocomplete - only show when creating new */}
+        {!isEdit && (
+          <div className="mb-5">
+            <TemplateAutocomplete onSelect={handleTemplateSelect} />
+          </div>
+        )}
+
+        {/* Pricing tier selector - show when template has tiers */}
+        {selectedTemplate?.pricing_tiers && selectedTemplate.pricing_tiers.length > 0 && (
+          <div className="mb-5">
+            <PricingTierSelector
+              tiers={selectedTemplate.pricing_tiers}
+              selected={selectedTier}
+              onSelect={handleTierSelect}
+              currency={fields.currency}
+            />
+          </div>
+        )}
+
+        {/* Seats input - show for per-seat pricing */}
+        {selectedTemplate?.per_seat_pricing && (
+          <div className="mb-5">
+            <SeatsInput
+              value={seats}
+              onChange={setSeats}
+              pricePerSeat={parseFloat(fields.amount) || 0}
+              currency={fields.currency}
+            />
+          </div>
+        )}
+
         <div className="form-grid">
 
           {/* Name */}
