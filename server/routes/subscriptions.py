@@ -86,6 +86,17 @@ def validate_subscription_data(data, partial=False):
         else:
             cleaned["category"] = category
 
+    # Seats validation (optional, for per-seat pricing)
+    if "seats" in data:
+        try:
+            seats = int(data["seats"])
+            if seats < 1:
+                errors.append("Seats must be at least 1")
+            else:
+                cleaned["seats"] = seats
+        except (TypeError, ValueError):
+            errors.append("Seats must be a number")
+
     return errors, cleaned
 
 
